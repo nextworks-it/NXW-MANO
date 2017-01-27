@@ -1,0 +1,147 @@
+{
+  "name": "sample-NS",
+  "vendor": "Franhofer FOKUS",
+  "version": "1.1.0",
+  "vnfd": [
+    {
+      "vendor": "Franhofer FOKUS",
+      "version": "1.1.0",
+      "name": "TheServer",
+      "type": "server",
+      "endpoint": "dummy",
+      "configurations": {
+        "name": "config_name",
+        "configurationParameters": [
+          {
+            "confKey": "key1",
+            "value": "value1"
+          },
+          {
+            "confKey": "key2",
+            "value": "value2"
+          }
+        ]
+      },
+      "vdu": [
+        {
+          "vm_image": [
+            "ubuntu-14.04-server-cloudimg-amd64-disk1"
+          ],
+          "vimInstanceName": [
+            "vim-instance"
+          ],
+          "scale_in_out": 1,
+          "vnfc": [
+            {
+              "connection_point": [
+                {
+                  "virtual_link_reference": "private"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "virtual_link": [
+        {
+          "name": "private"
+        }
+      ],
+      "lifecycle_event": [
+        {
+          "event": "INSTANTIATE",
+          "lifecycle_events": [
+            "install.sh",
+            "start-srv.sh"
+          ]
+        }
+      ],
+      "deployment_flavour": [
+        {
+          "flavour_key": "m1.small"
+        }
+      ],
+      "vnfPackageLocation": "https://localhost/repo.git"
+    },
+    {
+      "vendor": "Fraunhofer FOKUS",
+      "version": "1.1.0",
+      "name": "TheClient",
+      "type": "client",
+      "endpoint": "dummy",
+      "vdu": [
+        {
+          "vm_image": [
+            "ubuntu-14.04-server-cloudimg-amd64-disk1"
+          ],
+          "vimInstanceName": [
+          ],
+          "scale_in_out": 2,
+          "vnfc": [
+            {
+              "connection_point": [
+                {
+                  "floatingIp": "random",
+                  "virtual_link_reference": "private"
+                }
+              ]
+            },
+            {
+              "connection_point": [
+                {
+                  "floatingIp": "random",
+                  "virtual_link_reference": "private"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "virtual_link": [
+        {
+          "name": "private"
+        }
+      ],
+      "lifecycle_event": [
+        {
+          "event": "INSTANTIATE",
+          "lifecycle_events": [
+            "install.sh"
+          ]
+        },
+        {
+          "event": "CONFIGURE",
+          "lifecycle_events": [
+            "server_start-clt.sh"
+          ]
+        }
+      ],
+      "deployment_flavour": [
+        {
+          "flavour_key": "m1.small"
+        }
+      ],
+      "vnfPackageLocation": "https://localhost/repo.git"
+    }
+  ],
+  "vnffgd": [
+  ],
+  "vld": [
+    {
+      "name": "private"
+    }
+  ],
+  "vnf_dependency": [
+    {
+      "source": {
+        "name": "server"
+      },
+      "target": {
+        "name": "client"
+      },
+      "parameters": [
+        "private"
+      ]
+    }
+  ]
+}

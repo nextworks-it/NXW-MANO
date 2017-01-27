@@ -1,0 +1,66 @@
+/*
+ * Copyright (c) 2016 Open Baton (http://www.openbaton.org)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+rootProject.projectDir = file('.')
+rootProject.name = 'openbaton'
+
+include 'api'
+include 'cli'
+include 'common'
+include 'core-impl', 'core-int'
+include 'main'
+include 'utils'
+include 'vim-impl', 'vim-int'
+include 'vnfm-int', 'vnfm-impl'
+include 'repository'
+include 'catalogue'
+include 'monitoring'
+include 'exception'
+include 'vim-drivers'
+include 'dashboard'
+include 'plugin'
+include 'security'
+include 'tosca-parser'
+
+project(':catalogue').projectDir = file('openbaton-libs/catalogue')
+project(':monitoring').projectDir = file('openbaton-libs/monitoring')
+project(':vim-drivers').projectDir = file('openbaton-libs/vim-drivers')
+project(':exception').projectDir = file('openbaton-libs/exception')
+project(':utils').projectDir = file('openbaton-libs/utils')
+project(':security').projectDir = file('security')
+
+project(':common').projectDir = file('common')
+project(':dashboard').projectDir = file('dashboard')
+
+project(':core-impl').projectDir = file('core/core-impl')
+project(':core-int').projectDir = file('core/core-int')
+project(':vim-int').projectDir = file('openbaton-libs/vim-int')
+project(':vim-impl').projectDir = file('openbaton-libs/vim-impl')
+project(':main').projectDir = file('main')
+project(':api').projectDir = file('api')
+project(':plugin').projectDir = file('openbaton-libs/plugin')
+project(':vnfm-impl').projectDir = file('vnfm/vnfm-impl')
+project(':vnfm-int').projectDir = file('vnfm/vnfm-int')
+project(':repository').projectDir = file('repository')
+project(':tosca-parser').projectDir = file('tosca-parser')
+
+//File nfvoDir = file('.')
+//String nfvoName = nfvoDir.name
+//
+//include nfvoName
+//project(':' + nfvoName).projectDir = nfvoDir
+

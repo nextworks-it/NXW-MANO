@@ -1,0 +1,52 @@
+/*
+ * Copyright (c) 2016 Open Baton (http://www.openbaton.org)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+dependencies {
+    compile project(':repository')
+    compile project(':catalogue')
+    compile project(':plugin')
+    compile project(':core-int')
+
+    runtime project(':security')
+
+    runtime project(':dashboard')
+    runtime project(':core-impl')
+    runtime project(':api')
+    runtime project(':cli')
+    runtime project(':vim-impl')
+    runtime project(':repository')
+    runtime project(':vnfm-impl')
+
+    compile 'org.springframework:spring-context:' + springVersion
+    compile 'org.springframework.boot:spring-boot:' + springBootVersion
+    compile 'org.springframework.boot:spring-boot-autoconfigure:' + springBootVersion
+    compile 'org.springframework.data:spring-data-jpa:1.8.2.RELEASE'
+    compile 'org.springframework.boot:spring-boot-starter-amqp:' + springBootVersion
+
+    compile 'org.aspectj:aspectjweaver:1.8.6'
+
+    compile 'org.springframework.boot:spring-boot-starter-actuator:' + springBootVersion
+
+    compile 'org.flywaydb:flyway-core:4.0.3'
+
+//    TEST
+    testCompile 'org.springframework:spring-test:' + springVersion
+    testCompile 'junit:junit:4.12'
+    testCompile 'org.springframework.boot:spring-boot-starter-data-jpa:' + springBootVersion
+    testCompile 'org.hsqldb:hsqldb:2.3.2'
+
+}
