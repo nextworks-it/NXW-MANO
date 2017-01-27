@@ -1,0 +1,69 @@
+{
+    "metadata":{
+	"app-family": "SENSOR",
+	"app-class": "SDN_APP",
+	"app-type": "x.y.z",
+	"app-name": "test-nxw-sdn-updated",
+	"app-version": "2.0 ",
+	"public": "true",
+	"upload": "true",
+	"app-archive": {
+	    "name": "test-2",
+	    "type": "OSGI_BUNDLE",
+	    "link": "http://myurl.org/bundle/test/update"
+	}
+    },
+    "sdn-descriptor": {
+	"vendor":  "nextworks",
+	"name": "test-app-new",
+	"type": "SDN_APP",
+	"version": "2.0",
+	"controller": "ODL"
+    },
+    "monitoring": {
+	"metrics": [{
+	    "metric-name": "energy",
+	    "metric-values": [{
+		"name": "port.energy",
+		"resource": "node.port",
+		"unit": "Watt",
+		"type": "CUMULATIVE"
+	    }, {
+		"name": "node.energy",
+		"resource": "node",
+		"unit": "Watt",
+		"type": "CUMULATIVE"
+	    }]
+	}, {
+	    "metric-name": "packet-loss",
+	    "metric-values": [{
+		"name": "port.loss",
+		"resource": "node.card.port",
+		"unit": "pps",
+		"type": "CUMULATIVE"
+	    }]
+	}, {
+	    "metric-name": "packet-count",
+	    "metric-values": [{
+		"name": "port.count",
+		"resource": "node.card.port",
+		"unit": "pps",
+		"type": "DELTA"
+	    }]
+	}],
+	"communication": {
+	    "protocol": "REST",
+	    "endpoints": [{
+		"metric": "energy",
+		"value": "http://myurl.org/metrics/1"
+	    }, {
+		"metric": "packet-loss",
+		"value": "http://myurl.org/metrics/2"
+	    }, {
+		"metric": "packet-count",
+		"value": "http://myurl.org/metrics/3"
+	    }],
+	    "method": "PULL"
+	}
+    }
+}

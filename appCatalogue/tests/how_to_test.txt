@@ -1,0 +1,49 @@
+#################################################################################
+####################### HOW TO USE appCatalogue #################################
+#################################################################################
+
+# configure a VIM instance
+./test_configure_vim
+
+# onboard a VNF
+./test_onboard_vnf
+
+# onboard a SDN APP
+./test_onboard_sdn
+
+# get app package
+curl "http://localhost:8081/app-catalogue/app-packages/{id}"
+
+# disable app package
+curl -X PUT "http://localhost:8081/app-catalogue/app-packages/{id}/action?status=DISABLE"
+
+# enable app package
+curl -X PUT "http://localhost:8081/app-catalogue/app-packages/{id}/action?status=ENABLE"
+
+# update app package sdn
+curl -v -X PUT -d @test_update_sdn.json "http://localhost:8081/app-catalogue/app-packages/{id}" --header "Content-Type:application/json"
+
+# update app package vnf
+curl -v -X PUT -d @test_update_vnf.json "http://localhost:8081/app-catalogue/app-packages/{id}" --header "Content-Type:application/json"
+
+# offboard app package
+curl -X DELETE "http://localhost:8081/app-catalogue/app-packages/{id}"
+
+# get app packages onboarded
+curl "http://localhost:8081/app-catalogue/app-packages"
+
+# get list of app packages onboarded
+curl "http://localhost:8081/app-catalogue/app-packages/ids"
+
+# get VIM 
+curl "http://localhost:8081/app-catalogue/config/vims/{vim-name}"
+
+# get VIMs configured
+curl "http://localhost:8081/app-catalogue/config/vims"
+
+# delete VIM
+curl -X DELETE "http://localhost:8081/app-catalogue/vims/{vim-name}"
+
+#################################################################################
+#################################################################################
+#################################################################################

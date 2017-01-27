@@ -1,0 +1,11 @@
+*.class
+*.jar
+*.zip
+*.java.hsp
+*.log
+.settings
+.springBeans
+bin
+build
+target
+

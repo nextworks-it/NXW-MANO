@@ -1,0 +1,8 @@
+{
+	"name":  "test-vim-instance",
+        "type": "OPENSTACK",
+	"url": "http://localhost:9090/",
+	"username": "selfnet",
+	"password": "selfnet",
+	"tenant": "admin"
+}

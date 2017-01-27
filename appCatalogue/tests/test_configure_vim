@@ -1,0 +1,2 @@
+curl -v -X POST -d @test_vim.json "http://localhost:8081/app-catalogue/config/vims" --header "Content-Type:application/json"
+

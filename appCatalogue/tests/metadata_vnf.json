@@ -1,0 +1,22 @@
+{
+	"app-family": "SENSOR",
+	"app-class": "VNF",
+	"app-type": "a.b.c.d",
+	"app-name": "test-nxw-vnf",
+	"app-version": "1.0 ",
+        "public": "true",
+        "upload": "true",
+	"vm-images": [{
+		"name": "vnfc-1",
+		"link": "http://myurl.org/vms/1",
+		"disk-format": "QCOW2",
+		"container-format": "BARE"
+	}, {
+		"name": "vnfc-2",
+		"link": "http://myurl.org/vms/2",
+		"disk-format": "AMI",
+		"container-format": "AMI"
+	}],
+        "vims" : ["test-vim-instance"],
+	"scripts-link": "http://myurl.org/scripts"
+}

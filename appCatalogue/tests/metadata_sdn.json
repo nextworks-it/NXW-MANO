@@ -1,0 +1,14 @@
+{
+	"app-family": "SENSOR",
+	"app-class": "SDN_APP",
+	"app-type": "x.y.z",
+	"app-name": "test-nxw-sdn",
+	"app-version": "1.0 ",
+        "public": "true",
+        "upload": "true",
+	"app-archive": {
+		"name": "test",
+		"type": "OSGI_BUNDLE",
+		"link": "http://myurl.org/bundle/test"
+	}
+}

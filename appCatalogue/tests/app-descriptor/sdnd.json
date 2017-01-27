@@ -1,0 +1,7 @@
+{
+	"vendor":  "nextworks",
+	"name": "test-app",
+	"type": "SDN_APP",
+	"version": "1.0",
+	"controller": "ODL"
+}

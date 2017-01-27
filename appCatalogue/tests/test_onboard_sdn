@@ -1,0 +1,2 @@
+curl -X POST -v -F file=@sdn-test.tar http://localhost:8081/app-catalogue/app-packages
+

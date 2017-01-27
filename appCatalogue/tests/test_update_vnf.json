@@ -1,0 +1,104 @@
+{
+    "metadata": {
+	"app-family": "SENSOR",
+	"app-class": "VNF",
+	"app-type": "a.b.c.d",
+	"app-name": "test-nxw-vnf-update",
+	"app-version": "2.0 ",
+        "public": "true",
+        "upload": "true",
+	"vm-images": [{
+	    "name": "vnfc-1-update",
+	    "link": "http://myurl.org/vms/3",
+	    "disk-format": "QCOW2",
+	    "container-format": "BARE",
+	}],
+        "vims" : ["test-vim-instance"]
+    },
+    "vnf-descriptor": {  
+	"vendor":"nxw",
+	"version":"1.1",
+	"name":"test-update",
+	"type":"test",
+	"endpoint":"selfnet",
+	"configurations":{
+            "name":"config_name",
+            "configurationParameters":[
+		{
+		    "confKey":"key",
+		    "value":"value"
+		}
+            ]
+	},
+	"vdu":[  
+            {  
+		"vm_image":[  
+                    "vnfc-1-update"
+		],
+		"vimInstanceName":["test-vim-instance"],
+		"scale_in_out":2,
+		"vnfc":[  
+                    {  
+			"connection_point":[  
+                            {  
+				"floatingIp":"random",
+				"virtual_link_reference":"private"
+                            }
+			]
+                    }
+		]
+            }
+	],
+	"virtual_link":[  
+            {  
+		"name":"private"
+            }
+	],
+	"lifecycle_event":[  
+            {  
+		"event":"INSTANTIATE",
+		"lifecycle_events":[  
+                    "install.sh",
+                    "install-srv.sh"
+		]
+            }
+	],
+	"deployment_flavour":[  
+            {  
+		"flavour_key":"m1.small"
+            }
+	],
+	"vnfPackageLocation":"link_to_gitrepo"
+    },
+    "configuration" : {
+	"parameters": [{
+	    "config-action": "drop.port.ingress",
+	    "config-values": [{
+		"parameter": "port.id",
+		"name": "any port"
+	    }, {
+		"parameter": "protocol",
+		"name": "L3 protocol"
+	    }]
+	}, {
+	    "config-action": "drop.port.dest",
+	    "config-values": [{
+		"parameter": "port.input.id",
+		"name": "ingress port"
+	    }, {
+		"parameter": "dest.ip",
+		"name": "destination IP"
+	    }]
+	}],
+	"communication": {
+	    "protocol": "REST",
+	    "endpoints": [{
+		"config-action": "drop.port.ingress",
+		"value": "http://myurl.org/acton-path1"
+	    }, {
+		"config-action": "drop.port.dest",
+		"value": "http://myurl.org/acton-path3"
+	    }]
+	}
+    }
+}

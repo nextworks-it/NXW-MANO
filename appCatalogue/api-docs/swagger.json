@@ -1,0 +1,1868 @@
+{
+	"swagger": "2.0",
+	"info": {
+		"description": "The API of the NFV and SDN Applications Catalogue Service.",
+		"version": "1.0",
+		"title": "SELFNET Applications Catalogue",
+		"contact": {
+			"name": "Giacomo Bernini",
+			"url": "https://selfnet-5g.eu/",
+			"email": "g.bernini@nextworks.it"
+		},
+		"license": {
+			"name": "Apache License Version 2.0",
+			"url": "http://www.apache.org/licenses/LICENSE-2.0"
+		}
+	},
+	"host": "localhost:8081",
+	"basePath": "/",
+	"tags": [{
+		"name": "config-rest-controller",
+		"description": "Config Rest Controller"
+	}, {
+		"name": "app-package-rest-controller",
+		"description": "App Package Rest Controller"
+	}],
+	"paths": {
+		"/app-catalogue/app-packages": {
+			"get": {
+				"tags": ["app-package-rest-controller"],
+				"summary": "APP Packages Query",
+				"operationId": "getAppPackagesUsingGET",
+				"consumes": ["application/json"],
+				"produces": ["*/*"],
+				"responses": {
+					"200": {
+						"description": "Success",
+						"schema": {
+							"$ref": "#/definitions/Collection«AppPackage»"
+						}
+					},
+					"401": {
+						"description": "Unauthorized"
+					},
+					"500": {
+						"description": "Internal Server Error"
+					},
+					"403": {
+						"description": "Forbidden"
+					},
+					"404": {
+						"description": "Entity Not Found"
+					}
+				}
+			},
+			"post": {
+				"tags": ["app-package-rest-controller"],
+				"summary": "APP Package Onboard",
+				"operationId": "onboardAppPackageUsingPOST",
+				"consumes": ["multipart/form-data"],
+				"produces": ["*/*"],
+				"parameters": [{
+					"name": "file",
+					"in": "formData",
+					"description": "file",
+					"required": true,
+					"type": "file"
+				}],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": {
+							"type": "string"
+						}
+					},
+					"201": {
+						"description": "Created",
+						"schema": {
+							"type": "string"
+						}
+					},
+					"400": {
+						"description": "Bad Request"
+					},
+					"401": {
+						"description": "Unauthorized"
+					},
+					"403": {
+						"description": "Forbidden"
+					},
+					"404": {
+						"description": "Not Found"
+					}
+				}
+			}
+		},
+		"/app-catalogue/app-packages/ids": {
+			"get": {
+				"tags": ["app-package-rest-controller"],
+				"summary": "APP Packages Query (app-id list)",
+				"operationId": "getAppPackagesIdsUsingGET",
+				"consumes": ["application/json"],
+				"produces": ["*/*"],
+				"responses": {
+					"200": {
+						"description": "Success",
+						"schema": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized"
+					},
+					"500": {
+						"description": "Internal Server Error"
+					},
+					"403": {
+						"description": "Forbidden"
+					},
+					"404": {
+						"description": "Entity Not Found"
+					}
+				}
+			}
+		},
+		"/app-catalogue/app-packages/{packageId}": {
+			"get": {
+				"tags": ["app-package-rest-controller"],
+				"summary": "APP Package Query",
+				"operationId": "getAppPackageUsingGET",
+				"consumes": ["application/json"],
+				"produces": ["*/*"],
+				"parameters": [{
+					"name": "packageId",
+					"in": "path",
+					"description": "packageId",
+					"required": true,
+					"type": "string"
+				}],
+				"responses": {
+					"200": {
+						"description": "Success",
+						"schema": {
+							"$ref": "#/definitions/AppPackage"
+						}
+					},
+					"401": {
+						"description": "Unauthorized"
+					},
+					"500": {
+						"description": "Internal Server Error"
+					},
+					"403": {
+						"description": "Forbidden"
+					},
+					"404": {
+						"description": "Entity Not Found"
+					}
+				}
+			},
+			"put": {
+				"tags": ["app-package-rest-controller"],
+				"summary": "APP Package Update",
+				"operationId": "updateAppPackageUsingPUT",
+				"consumes": ["application/json"],
+				"produces": ["*/*"],
+				"parameters": [{
+					"name": "packageId",
+					"in": "path",
+					"description": "packageId",
+					"required": true,
+					"type": "string"
+				}, {
+					"in": "body",
+					"name": "pckg",
+					"description": "pckg",
+					"required": true,
+					"schema": {
+						"$ref": "#/definitions/AppPackage"
+					}
+				}],
+				"responses": {
+					"200": {
+						"description": "Success",
+						"schema": {
+							"type": "string"
+						}
+					},
+					"201": {
+						"description": "Created"
+					},
+					"401": {
+						"description": "Unauthorized"
+					},
+					"500": {
+						"description": "Internal Server Error"
+					},
+					"403": {
+						"description": "Forbidden"
+					},
+					"404": {
+						"description": "Entity Not Found"
+					}
+				}
+			},
+			"delete": {
+				"tags": ["app-package-rest-controller"],
+				"summary": "APP Package Offboard",
+				"operationId": "offBoardAppPackageUsingDELETE",
+				"consumes": ["application/json"],
+				"produces": ["*/*"],
+				"parameters": [{
+					"name": "packageId",
+					"in": "path",
+					"description": "packageId",
+					"required": true,
+					"type": "string"
+				}],
+				"responses": {
+					"200": {
+						"description": "Success",
+						"schema": {
+							"type": "string"
+						}
+					},
+					"401": {
+						"description": "Unauthorized"
+					},
+					"500": {
+						"description": "Internal Server Error"
+					},
+					"204": {
+						"description": "No Content"
+					},
+					"403": {
+						"description": "Forbidden"
+					},
+					"404": {
+						"description": "Entity Not Found"
+					},
+					"405": {
+						"description": "Method Not Allowed"
+					}
+				}
+			}
+		},
+		"/app-catalogue/app-packages/{packageId}/action": {
+			"put": {
+				"tags": ["app-package-rest-controller"],
+				"summary": "APP Package Status Change",
+				"operationId": "enableDisableAppPackageUsingPUT",
+				"consumes": ["application/json"],
+				"produces": ["*/*"],
+				"parameters": [{
+					"name": "packageId",
+					"in": "path",
+					"description": "packageId",
+					"required": true,
+					"type": "string"
+				}, {
+					"name": "status",
+					"in": "query",
+					"description": "status",
+					"required": true,
+					"type": "string"
+				}],
+				"responses": {
+					"200": {
+						"description": "Success",
+						"schema": {
+							"type": "string"
+						}
+					},
+					"201": {
+						"description": "Created"
+					},
+					"401": {
+						"description": "Unauthorized"
+					},
+					"500": {
+						"description": "Internal Server Error"
+					},
+					"403": {
+						"description": "Forbidden"
+					},
+					"404": {
+						"description": "Entity Not Found"
+					},
+					"405": {
+						"description": "Method Not Allowed"
+					}
+				}
+			}
+		},
+		"/app-catalogue/app-packages/{packageId}/app-configuration": {
+			"get": {
+				"tags": ["app-package-rest-controller"],
+				"summary": "APP Package Configuration Info Query",
+				"operationId": "getAppConfigurationUsingGET",
+				"consumes": ["application/json"],
+				"produces": ["*/*"],
+				"parameters": [{
+					"name": "packageId",
+					"in": "path",
+					"description": "packageId",
+					"required": true,
+					"type": "string"
+				}],
+				"responses": {
+					"200": {
+						"description": "Success",
+						"schema": {
+							"$ref": "#/definitions/AppMonitoring"
+						}
+					},
+					"401": {
+						"description": "Unauthorized"
+					},
+					"500": {
+						"description": "Internal Server Error"
+					},
+					"403": {
+						"description": "Forbidden"
+					},
+					"404": {
+						"description": "Entity Not Found"
+					}
+				}
+			}
+		},
+		"/app-catalogue/app-packages/{packageId}/app-descriptor": {
+			"get": {
+				"tags": ["app-package-rest-controller"],
+				"summary": "APP Package Descriptor Info Query",
+				"operationId": "getAppDescriptorUsingGET",
+				"consumes": ["application/json"],
+				"produces": ["*/*"],
+				"parameters": [{
+					"name": "packageId",
+					"in": "path",
+					"description": "packageId",
+					"required": true,
+					"type": "string"
+				}],
+				"responses": {
+					"200": {
+						"description": "Success",
+						"schema": {
+							"type": "object"
+						}
+					},
+					"401": {
+						"description": "Unauthorized"
+					},
+					"500": {
+						"description": "Internal Server Error"
+					},
+					"403": {
+						"description": "Forbidden"
+					},
+					"404": {
+						"description": "Entity Not Found"
+					}
+				}
+			}
+		},
+		"/app-catalogue/app-packages/{packageId}/app-info": {
+			"get": {
+				"tags": ["app-package-rest-controller"],
+				"summary": "APP Package Metadata Info Query",
+				"operationId": "getAppMetadataUsingGET",
+				"consumes": ["application/json"],
+				"produces": ["*/*"],
+				"parameters": [{
+					"name": "packageId",
+					"in": "path",
+					"description": "packageId",
+					"required": true,
+					"type": "string"
+				}],
+				"responses": {
+					"200": {
+						"description": "Success",
+						"schema": {
+							"$ref": "#/definitions/AppMetadata"
+						}
+					},
+					"401": {
+						"description": "Unauthorized"
+					},
+					"500": {
+						"description": "Internal Server Error"
+					},
+					"403": {
+						"description": "Forbidden"
+					},
+					"404": {
+						"description": "Entity Not Found"
+					}
+				}
+			}
+		},
+		"/app-catalogue/app-packages/{packageId}/app-monitoring": {
+			"get": {
+				"tags": ["app-package-rest-controller"],
+				"summary": "APP Package Monitoring Info Query",
+				"operationId": "getAppMonitoringUsingGET",
+				"consumes": ["application/json"],
+				"produces": ["*/*"],
+				"parameters": [{
+					"name": "packageId",
+					"in": "path",
+					"description": "packageId",
+					"required": true,
+					"type": "string"
+				}],
+				"responses": {
+					"200": {
+						"description": "Success",
+						"schema": {
+							"$ref": "#/definitions/AppMonitoring"
+						}
+					},
+					"401": {
+						"description": "Unauthorized"
+					},
+					"500": {
+						"description": "Internal Server Error"
+					},
+					"403": {
+						"description": "Forbidden"
+					},
+					"404": {
+						"description": "Entity Not Found"
+					}
+				}
+			}
+		},
+		"/app-catalogue/app-packages/{packageId}/app-status": {
+			"get": {
+				"tags": ["app-package-rest-controller"],
+				"summary": "APP Package Status Info Query",
+				"operationId": "getAppStatusUsingGET",
+				"consumes": ["application/json"],
+				"produces": ["*/*"],
+				"parameters": [{
+					"name": "packageId",
+					"in": "path",
+					"description": "packageId",
+					"required": true,
+					"type": "string"
+				}],
+				"responses": {
+					"200": {
+						"description": "Success",
+						"schema": {
+							"type": "string",
+							"enum": ["ENABLED", "DISABLED"]
+						}
+					},
+					"401": {
+						"description": "Unauthorized"
+					},
+					"500": {
+						"description": "Internal Server Error"
+					},
+					"403": {
+						"description": "Forbidden"
+					},
+					"404": {
+						"description": "Entity Not Found"
+					}
+				}
+			}
+		},
+		"/app-catalogue/config/vims": {
+			"get": {
+				"tags": ["config-rest-controller"],
+				"summary": "APP Package VIM Instances Query",
+				"operationId": "getVimsUsingGET",
+				"consumes": ["application/json"],
+				"produces": ["*/*"],
+				"responses": {
+					"200": {
+						"description": "Success",
+						"schema": {
+							"$ref": "#/definitions/Collection«Vim»"
+						}
+					},
+					"401": {
+						"description": "Unauthorized"
+					},
+					"403": {
+						"description": "Forbidden"
+					},
+					"404": {
+						"description": "Not Found"
+					}
+				}
+			},
+			"post": {
+				"tags": ["config-rest-controller"],
+				"summary": "APP Package VIM Instance Configuration",
+				"operationId": "addVimUsingPOST",
+				"consumes": ["application/json"],
+				"produces": ["*/*"],
+				"parameters": [{
+					"in": "body",
+					"name": "vim",
+					"description": "vim",
+					"required": true,
+					"schema": {
+						"$ref": "#/definitions/Vim"
+					}
+				}],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": {
+							"type": "string"
+						}
+					},
+					"201": {
+						"description": "Created",
+						"schema": {
+							"type": "string"
+						}
+					},
+					"400": {
+						"description": "Bad Request"
+					},
+					"401": {
+						"description": "Unauthorized"
+					},
+					"403": {
+						"description": "Forbidden"
+					},
+					"404": {
+						"description": "Not Found"
+					}
+				}
+			}
+		},
+		"/app-catalogue/config/vims/{vimName}": {
+			"get": {
+				"tags": ["config-rest-controller"],
+				"summary": "APP Package VIM Instance Query",
+				"operationId": "getVimUsingGET",
+				"consumes": ["application/json"],
+				"produces": ["*/*"],
+				"parameters": [{
+					"name": "vimName",
+					"in": "path",
+					"description": "vimName",
+					"required": true,
+					"type": "string"
+				}],
+				"responses": {
+					"200": {
+						"description": "Success",
+						"schema": {
+							"$ref": "#/definitions/Vim"
+						}
+					},
+					"401": {
+						"description": "Unauthorized"
+					},
+					"403": {
+						"description": "Forbidden"
+					},
+					"404": {
+						"description": "Not Found"
+					}
+				}
+			},
+			"delete": {
+				"tags": ["config-rest-controller"],
+				"summary": "APP Package VIM Instance Deletion",
+				"operationId": "deleteVimUsingDELETE",
+				"consumes": ["application/json"],
+				"produces": ["*/*"],
+				"parameters": [{
+					"name": "vimName",
+					"in": "path",
+					"description": "vimName",
+					"required": true,
+					"type": "string"
+				}],
+				"responses": {
+					"200": {
+						"description": "Succes",
+						"schema": {
+							"type": "string"
+						}
+					},
+					"401": {
+						"description": "Unauthorized"
+					},
+					"204": {
+						"description": "No Content"
+					},
+					"403": {
+						"description": "Forbidden"
+					},
+					"404": {
+						"description": "Not Found"
+					}
+				}
+			}
+		}
+	},
+	"definitions": {
+		"Policy": {
+			"type": "object",
+			"properties": {
+				"id": {
+					"type": "string"
+				}
+			}
+		},
+		"VNFDConnectionPoint": {
+			"type": "object",
+			"properties": {
+				"floatingIp": {
+					"type": "string"
+				},
+				"id": {
+					"type": "string"
+				},
+				"type": {
+					"type": "string"
+				},
+				"version": {
+					"type": "integer",
+					"format": "int32"
+				},
+				"virtual_link_reference": {
+					"type": "string"
+				}
+			}
+		},
+		"Configuration": {
+			"type": "object",
+			"properties": {
+				"configurationParameters": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/ConfigurationParameter"
+					}
+				},
+				"id": {
+					"type": "string"
+				},
+				"name": {
+					"type": "string"
+				},
+				"projectId": {
+					"type": "string"
+				},
+				"version": {
+					"type": "integer",
+					"format": "int32"
+				}
+			}
+		},
+		"Ip": {
+			"type": "object",
+			"properties": {
+				"id": {
+					"type": "string"
+				},
+				"ip": {
+					"type": "string"
+				},
+				"netName": {
+					"type": "string"
+				},
+				"version": {
+					"type": "integer",
+					"format": "int32"
+				}
+			}
+		},
+		"Collection«Vim»": {
+			"type": "object"
+		},
+		"ConfigurationCommunication": {
+			"type": "object",
+			"properties": {
+				"endpoints": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/ConfigurationEndpoint"
+					}
+				},
+				"metadata": {
+					"type": "object",
+					"additionalProperties": {
+						"type": "string"
+					}
+				},
+				"protocol": {
+					"type": "string"
+				}
+			}
+		},
+		"ConfigurationParameter": {
+			"type": "object",
+			"properties": {
+				"confKey": {
+					"type": "string"
+				},
+				"config-action": {
+					"type": "string"
+				},
+				"config-values": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/ConfigurationValue"
+					}
+				},
+				"id": {
+					"type": "string"
+				},
+				"value": {
+					"type": "string"
+				},
+				"version": {
+					"type": "integer",
+					"format": "int32"
+				}
+			}
+		},
+		"Criteria": {
+			"type": "object",
+			"properties": {
+				"comparison_operator": {
+					"type": "string"
+				},
+				"function": {
+					"type": "string"
+				},
+				"id": {
+					"type": "string"
+				},
+				"name": {
+					"type": "string"
+				},
+				"parameter_ref": {
+					"type": "string"
+				},
+				"threshold": {
+					"type": "string"
+				},
+				"version": {
+					"type": "integer",
+					"format": "int32"
+				},
+				"vnfc_selector": {
+					"type": "string",
+					"enum": ["at_least_one", "all"]
+				}
+			}
+		},
+		"Security": {
+			"type": "object",
+			"properties": {
+				"id": {
+					"type": "string"
+				},
+				"version": {
+					"type": "integer",
+					"format": "int32"
+				}
+			}
+		},
+		"ConfigurationEndpoint": {
+			"type": "object",
+			"properties": {
+				"config-action": {
+					"type": "string"
+				},
+				"value": {
+					"type": "string"
+				}
+			}
+		},
+		"VMImage": {
+			"type": "object",
+			"properties": {
+				"container-format": {
+					"type": "string",
+					"enum": ["BARE", "OVF", "AKI", "ARI", "AMI", "DOCKER"]
+				},
+				"disk-format": {
+					"type": "string",
+					"enum": ["RAW", "VHD", "VMDK", "VDI", "ISO", "QCOW2", "AKI", "ARI", "AMI"]
+				},
+				"link": {
+					"type": "string"
+				},
+				"min-cpu": {
+					"type": "string"
+				},
+				"min-disk": {
+					"type": "string"
+				},
+				"min-ram": {
+					"type": "string"
+				},
+				"name": {
+					"type": "string"
+				}
+			}
+		},
+		"NetworkForwardingPath": {
+			"type": "object",
+			"properties": {
+				"connection": {
+					"type": "object",
+					"additionalProperties": {
+						"type": "string"
+					}
+				},
+				"id": {
+					"type": "string"
+				},
+				"policy": {
+					"$ref": "#/definitions/Policy"
+				},
+				"version": {
+					"type": "integer",
+					"format": "int32"
+				}
+			}
+		},
+		"MetricValue": {
+			"type": "object",
+			"properties": {
+				"name": {
+					"type": "string"
+				},
+				"resource": {
+					"type": "string"
+				},
+				"type": {
+					"type": "string",
+					"enum": ["GAUGE", "CUMULATIVE", "DELTA"]
+				},
+				"unit": {
+					"type": "string"
+				}
+			}
+		},
+		"MonitoringCommunication": {
+			"type": "object",
+			"properties": {
+				"endpoints": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/MonitoringEndpoint"
+					}
+				},
+				"metadata": {
+					"type": "object",
+					"additionalProperties": {
+						"type": "string"
+					}
+				},
+				"method": {
+					"type": "string",
+					"enum": ["PUSH", "PULL"]
+				},
+				"protocol": {
+					"type": "string"
+				}
+			}
+		},
+		"DeploymentFlavour": {
+			"type": "object",
+			"properties": {
+				"disk": {
+					"type": "integer",
+					"format": "int32"
+				},
+				"extId": {
+					"type": "string"
+				},
+				"flavour_key": {
+					"type": "string"
+				},
+				"id": {
+					"type": "string"
+				},
+				"ram": {
+					"type": "integer",
+					"format": "int32"
+				},
+				"vcpus": {
+					"type": "integer",
+					"format": "int32"
+				},
+				"version": {
+					"type": "integer",
+					"format": "int32"
+				}
+			}
+		},
+		"AppConfiguration": {
+			"type": "object",
+			"properties": {
+				"communication": {
+					"$ref": "#/definitions/ConfigurationCommunication"
+				},
+				"parameters": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/ConfigurationParameter"
+					}
+				}
+			}
+		},
+		"AutoScalePolicy": {
+			"type": "object",
+			"properties": {
+				"actions": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/ScalingAction"
+					}
+				},
+				"alarms": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/ScalingAlarm"
+					}
+				},
+				"comparisonOperator": {
+					"type": "string"
+				},
+				"cooldown": {
+					"type": "integer",
+					"format": "int32"
+				},
+				"id": {
+					"type": "string"
+				},
+				"mode": {
+					"type": "string",
+					"enum": ["REACTIVE", "PROACTIVE", "PREDICTIVE"]
+				},
+				"name": {
+					"type": "string"
+				},
+				"period": {
+					"type": "integer",
+					"format": "int32"
+				},
+				"threshold": {
+					"type": "number",
+					"format": "double"
+				},
+				"type": {
+					"type": "string",
+					"enum": ["SINGLE", "VOTED", "WEIGHTED"]
+				},
+				"version": {
+					"type": "integer",
+					"format": "int32"
+				}
+			}
+		},
+		"LifecycleEvent": {
+			"type": "object",
+			"properties": {
+				"event": {
+					"type": "string",
+					"enum": ["GRANTED", "ALLOCATE", "SCALE", "RELEASE", "ERROR", "INSTANTIATE", "TERMINATE", "CONFIGURE", "START", "STOP", "HEAL", "SCALE_OUT", "SCALE_IN", "SCALE_UP", "SCALE_DOWN", "UPDATE", "UPDATE_ROLLBACK", "UPGRADE", "UPGRADE_ROLLBACK", "RESET"]
+				},
+				"id": {
+					"type": "string"
+				},
+				"lifecycle_events": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					}
+				},
+				"version": {
+					"type": "integer",
+					"format": "int32"
+				}
+			}
+		},
+		"VirtualNetworkFunctionDescriptor": {
+			"type": "object",
+			"properties": {
+				"auto_scale_policy": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/AutoScalePolicy"
+					}
+				},
+				"configurations": {
+					"$ref": "#/definitions/Configuration"
+				},
+				"connection_point": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/ConnectionPoint"
+					}
+				},
+				"deployment_flavour": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/VNFDeploymentFlavour"
+					}
+				},
+				"endpoint": {
+					"type": "string"
+				},
+				"hb_version": {
+					"type": "integer",
+					"format": "int32"
+				},
+				"id": {
+					"type": "string"
+				},
+				"lifecycle_event": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/LifecycleEvent"
+					}
+				},
+				"manifest_file": {
+					"type": "string"
+				},
+				"manifest_file_security": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/Security"
+					}
+				},
+				"monitoring_parameter": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					}
+				},
+				"name": {
+					"type": "string"
+				},
+				"projectId": {
+					"type": "string"
+				},
+				"provides": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					}
+				},
+				"requires": {
+					"type": "object",
+					"additionalProperties": {
+						"$ref": "#/definitions/RequiresParameters"
+					}
+				},
+				"service_deployment_flavour": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/DeploymentFlavour"
+					}
+				},
+				"type": {
+					"type": "string"
+				},
+				"vdu": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/VirtualDeploymentUnit"
+					}
+				},
+				"vdu_dependency": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/VDUDependency"
+					}
+				},
+				"vendor": {
+					"type": "string"
+				},
+				"version": {
+					"type": "string"
+				},
+				"virtual_link": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/InternalVirtualLink"
+					}
+				},
+				"vld": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/VirtualLinkDescriptor"
+					}
+				},
+				"vnfPackageLocation": {
+					"type": "string"
+				},
+				"vnffgd": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/VNFForwardingGraphDescriptor"
+					}
+				}
+			}
+		},
+		"VirtualDeploymentUnit": {
+			"type": "object",
+			"properties": {
+				"computation_requirement": {
+					"type": "string"
+				},
+				"fault_management_policy": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/VRFaultManagementPolicy"
+					}
+				},
+				"high_availability": {
+					"$ref": "#/definitions/HighAvailability"
+				},
+				"hostname": {
+					"type": "string"
+				},
+				"id": {
+					"type": "string"
+				},
+				"lifecycle_event": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/LifecycleEvent"
+					}
+				},
+				"monitoring_parameter": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					}
+				},
+				"name": {
+					"type": "string"
+				},
+				"parent_vdu": {
+					"type": "string"
+				},
+				"projectId": {
+					"type": "string"
+				},
+				"scale_in_out": {
+					"type": "integer",
+					"format": "int32"
+				},
+				"vdu_constraint": {
+					"type": "string"
+				},
+				"version": {
+					"type": "integer",
+					"format": "int32"
+				},
+				"vimInstanceName": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					}
+				},
+				"virtual_memory_resource_element": {
+					"type": "string"
+				},
+				"virtual_network_bandwidth_resource": {
+					"type": "string"
+				},
+				"vm_image": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					}
+				},
+				"vnfc": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/VNFComponent"
+					}
+				},
+				"vnfc_instance": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/VNFCInstance"
+					}
+				}
+			}
+		},
+		"VNFForwardingGraphDescriptor": {
+			"type": "object",
+			"properties": {
+				"connection_point": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/ConnectionPoint"
+					}
+				},
+				"constituent_vnfs": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/CostituentVNF"
+					}
+				},
+				"dependent_virtual_link": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/VirtualLinkDescriptor"
+					}
+				},
+				"descriptor_version": {
+					"type": "string"
+				},
+				"hb_version": {
+					"type": "integer",
+					"format": "int32"
+				},
+				"id": {
+					"type": "string"
+				},
+				"network_forwarding_path": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/NetworkForwardingPath"
+					}
+				},
+				"number_of_endpoints": {
+					"type": "integer",
+					"format": "int32"
+				},
+				"number_of_virtual_links": {
+					"type": "integer",
+					"format": "int32"
+				},
+				"vendor": {
+					"type": "string"
+				},
+				"version": {
+					"type": "string"
+				},
+				"vnffgd_security": {
+					"$ref": "#/definitions/Security"
+				}
+			}
+		},
+		"VNFCInstance": {
+			"type": "object",
+			"properties": {
+				"connection_point": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/VNFDConnectionPoint"
+					}
+				},
+				"floatingIps": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/Ip"
+					}
+				},
+				"hostname": {
+					"type": "string"
+				},
+				"id": {
+					"type": "string"
+				},
+				"ips": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/Ip"
+					}
+				},
+				"state": {
+					"type": "string"
+				},
+				"vc_id": {
+					"type": "string"
+				},
+				"version": {
+					"type": "integer",
+					"format": "int32"
+				},
+				"vim_id": {
+					"type": "string"
+				},
+				"vnfComponent": {
+					"$ref": "#/definitions/VNFComponent"
+				}
+			}
+		},
+		"ScalingAlarm": {
+			"type": "object",
+			"properties": {
+				"comparisonOperator": {
+					"type": "string"
+				},
+				"id": {
+					"type": "string"
+				},
+				"metric": {
+					"type": "string"
+				},
+				"statistic": {
+					"type": "string"
+				},
+				"threshold": {
+					"type": "number",
+					"format": "double"
+				},
+				"version": {
+					"type": "integer",
+					"format": "int32"
+				},
+				"weight": {
+					"type": "number",
+					"format": "double"
+				}
+			}
+		},
+		"InternalVirtualLink": {
+			"type": "object",
+			"properties": {
+				"connection_points_references": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					}
+				},
+				"connectivity_type": {
+					"type": "string"
+				},
+				"extId": {
+					"type": "string"
+				},
+				"hb_version": {
+					"type": "integer",
+					"format": "int32"
+				},
+				"id": {
+					"type": "string"
+				},
+				"leaf_requirement": {
+					"type": "string"
+				},
+				"name": {
+					"type": "string"
+				},
+				"qos": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					}
+				},
+				"root_requirement": {
+					"type": "string"
+				},
+				"test_access": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					}
+				}
+			}
+		},
+		"CostituentVNF": {
+			"type": "object",
+			"properties": {
+				"affinity": {
+					"type": "string"
+				},
+				"capability": {
+					"type": "string"
+				},
+				"id": {
+					"type": "string"
+				},
+				"number_of_instances": {
+					"type": "integer",
+					"format": "int32"
+				},
+				"redundancy_model": {
+					"type": "string",
+					"enum": ["ACTIVE", "STANDBY"]
+				},
+				"vnf_flavour_id_reference": {
+					"type": "string"
+				},
+				"vnf_reference": {
+					"type": "string"
+				}
+			}
+		},
+		"Collection«AppPackage»": {
+			"type": "object"
+		},
+		"ScalingAction": {
+			"type": "object",
+			"properties": {
+				"id": {
+					"type": "string"
+				},
+				"target": {
+					"type": "string"
+				},
+				"type": {
+					"type": "string",
+					"enum": ["SCALE_OUT", "SCALE_OUT_TO", "SCALE_OUT_TO_FLAVOUR", "SCALE_IN", "SCALE_IN_TO", "SCALE_IN_TO_FLAVOUR"]
+				},
+				"value": {
+					"type": "string"
+				},
+				"version": {
+					"type": "integer",
+					"format": "int32"
+				}
+			}
+		},
+		"VRFaultManagementPolicy": {
+			"type": "object",
+			"properties": {
+				"action": {
+					"type": "string",
+					"enum": ["RESTART", "REINSTANTIATE_SERVICE", "HEAL", "REINSTANTIATE", "SWITCH_TO_STANDBY", "SWITCH_TO_ACTIVE"]
+				},
+				"criteria": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/Criteria"
+					}
+				},
+				"id": {
+					"type": "string"
+				},
+				"name": {
+					"type": "string"
+				},
+				"period": {
+					"type": "integer",
+					"format": "int32"
+				},
+				"severity": {
+					"type": "string",
+					"enum": ["INDETERMINATE", "WARNING", "MINOR", "MAJOR", "CRITICAL"]
+				},
+				"vnfalarm": {
+					"type": "boolean"
+				}
+			}
+		},
+		"AppMonitoring": {
+			"type": "object",
+			"properties": {
+				"communication": {
+					"$ref": "#/definitions/MonitoringCommunication"
+				},
+				"metrics": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/MonitoringMetric"
+					}
+				}
+			}
+		},
+		"HighAvailability": {
+			"type": "object",
+			"properties": {
+				"geoRedundancy": {
+					"type": "boolean"
+				},
+				"redundancyScheme": {
+					"type": "string"
+				},
+				"resiliencyLevel": {
+					"type": "string",
+					"enum": ["ACTIVE_STANDBY_STATELESS", "ACTIVE_STANDBY_STATEFUL"]
+				}
+			}
+		},
+		"ConnectionPoint": {
+			"type": "object",
+			"properties": {
+				"id": {
+					"type": "string"
+				},
+				"type": {
+					"type": "string"
+				},
+				"version": {
+					"type": "integer",
+					"format": "int32"
+				}
+			}
+		},
+		"RequiresParameters": {
+			"type": "object",
+			"properties": {
+				"id": {
+					"type": "string"
+				},
+				"parameters": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					}
+				},
+				"version": {
+					"type": "integer",
+					"format": "int32"
+				}
+			}
+		},
+		"MonitoringMetric": {
+			"type": "object",
+			"properties": {
+				"metric-name": {
+					"type": "string"
+				},
+				"metric-values": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/MetricValue"
+					}
+				}
+			}
+		},
+		"ConfigurationValue": {
+			"type": "object",
+			"properties": {
+				"name": {
+					"type": "string"
+				},
+				"parameter": {
+					"type": "string"
+				}
+			}
+		},
+		"AppPackage": {
+			"type": "object",
+			"properties": {
+				"app-id": {
+					"type": "string"
+				},
+				"app-status": {
+					"type": "string",
+					"enum": ["ENABLED", "DISABLED"]
+				},
+				"configuration": {
+					"$ref": "#/definitions/AppConfiguration"
+				},
+				"metadata": {
+					"$ref": "#/definitions/AppMetadata"
+				},
+				"monitoring": {
+					"$ref": "#/definitions/AppMonitoring"
+				},
+				"sdn-descriptor": {
+					"$ref": "#/definitions/SDNAppDescriptor"
+				},
+				"vnf-descriptor": {
+					"type": "string"
+				}
+			}
+		},
+		"VDUDependency": {
+			"type": "object",
+			"properties": {
+				"id": {
+					"type": "string"
+				},
+				"source": {
+					"$ref": "#/definitions/VirtualDeploymentUnit"
+				},
+				"target": {
+					"$ref": "#/definitions/VirtualDeploymentUnit"
+				},
+				"version": {
+					"type": "integer",
+					"format": "int32"
+				}
+			}
+		},
+		"MonitoringEndpoint": {
+			"type": "object",
+			"properties": {
+				"metric": {
+					"type": "string"
+				},
+				"value": {
+					"type": "string"
+				}
+			}
+		},
+		"VirtualLinkDescriptor": {
+			"type": "object",
+			"properties": {
+				"connection": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					}
+				},
+				"connectivity_type": {
+					"type": "string"
+				},
+				"descriptor_version": {
+					"type": "string"
+				},
+				"extId": {
+					"type": "string"
+				},
+				"hb_version": {
+					"type": "integer",
+					"format": "int32"
+				},
+				"id": {
+					"type": "string"
+				},
+				"leaf_requirement": {
+					"type": "string"
+				},
+				"name": {
+					"type": "string"
+				},
+				"number_of_endpoints": {
+					"type": "integer",
+					"format": "int32"
+				},
+				"projectId": {
+					"type": "string"
+				},
+				"qos": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					}
+				},
+				"root_requirement": {
+					"type": "string"
+				},
+				"test_access": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					}
+				},
+				"vendor": {
+					"type": "string"
+				},
+				"vld_security": {
+					"$ref": "#/definitions/Security"
+				}
+			}
+		},
+		"AppArchive": {
+			"type": "object",
+			"properties": {
+				"link": {
+					"type": "string"
+				},
+				"name": {
+					"type": "string"
+				},
+				"type": {
+					"type": "string",
+					"enum": ["OSGI_BUNDLE", "NATIVE"]
+				}
+			}
+		},
+		"AppMetadata": {
+			"type": "object",
+			"properties": {
+				"app-archive": {
+					"$ref": "#/definitions/AppArchive"
+				},
+				"app-class": {
+					"type": "string",
+					"enum": ["VNF", "SDN_APP", "SDN_CTRL_APP"]
+				},
+				"app-family": {
+					"type": "string",
+					"enum": ["SENSOR", "ACTUATOR"]
+				},
+				"app-impl-id": {
+					"type": "string"
+				},
+				"app-name": {
+					"type": "string"
+				},
+				"app-type": {
+					"type": "string"
+				},
+				"app-version": {
+					"type": "string"
+				},
+				"public": {
+					"type": "boolean"
+				},
+				"scripts-link": {
+					"type": "string"
+				},
+				"upload": {
+					"type": "boolean"
+				},
+				"vims": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					}
+				},
+				"vm-images": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/VMImage"
+					}
+				}
+			}
+		},
+		"SDNAppDescriptor": {
+			"type": "object",
+			"properties": {
+				"controller": {
+					"type": "string",
+					"enum": ["ODL", "ONOS", "FLOODLIGHT", "POX", "CONTRAIL"]
+				},
+				"metadata": {
+					"type": "object",
+					"additionalProperties": {
+						"type": "string"
+					}
+				},
+				"name": {
+					"type": "string"
+				},
+				"type": {
+					"type": "string",
+					"enum": ["SDN_APP", "SDN_CTRL_APP"]
+				},
+				"vendor": {
+					"type": "string"
+				},
+				"version": {
+					"type": "string"
+				}
+			}
+		},
+		"VNFDeploymentFlavour": {
+			"type": "object",
+			"properties": {
+				"costituent_vdu": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/CostituentVDU"
+					}
+				},
+				"df_constraint": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					}
+				},
+				"disk": {
+					"type": "integer",
+					"format": "int32"
+				},
+				"extId": {
+					"type": "string"
+				},
+				"flavour_key": {
+					"type": "string"
+				},
+				"id": {
+					"type": "string"
+				},
+				"ram": {
+					"type": "integer",
+					"format": "int32"
+				},
+				"vcpus": {
+					"type": "integer",
+					"format": "int32"
+				},
+				"version": {
+					"type": "integer",
+					"format": "int32"
+				}
+			}
+		},
+		"Vim": {
+			"type": "object",
+			"properties": {
+				"name": {
+					"type": "string"
+				},
+				"password": {
+					"type": "string"
+				},
+				"tenant": {
+					"type": "string"
+				},
+				"type": {
+					"type": "string",
+					"enum": ["OPENSTACK", "OTHER"]
+				},
+				"url": {
+					"type": "string"
+				},
+				"username": {
+					"type": "string"
+				}
+			}
+		},
+		"CostituentVDU": {
+			"type": "object",
+			"properties": {
+				"constituent_vnfc": {
+					"type": "string"
+				},
+				"id": {
+					"type": "string"
+				},
+				"number_of_instances": {
+					"type": "integer",
+					"format": "int32"
+				},
+				"vdu_reference": {
+					"type": "string"
+				},
+				"version": {
+					"type": "integer",
+					"format": "int32"
+				}
+			}
+		},
+		"VNFComponent": {
+			"type": "object",
+			"properties": {
+				"connection_point": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/VNFDConnectionPoint"
+					}
+				},
+				"id": {
+					"type": "string"
+				},
+				"version": {
+					"type": "integer",
+					"format": "int32"
+				}
+			}
+		}
+	}
+}

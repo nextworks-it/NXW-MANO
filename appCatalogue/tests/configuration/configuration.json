@@ -1,0 +1,28 @@
+{
+	"parameters": [{
+		"config-action": "drop.port.ingress",
+		"config-values": [{
+			"parameter": "port.id",
+			"name": "any port"
+		}, {
+			"parameter": "protocol",
+			"name": "L3 protocol"
+		}]
+	}, {
+		"config-action": "filter.input",
+		"config-values": [{
+			"parameter": "port.input.id",
+			"name": "ingress port"
+		}]
+	}],
+	"communication": {
+		"protocol": "REST",
+		"endpoints": [{
+			"config-action": "drop.port.ingress",
+			"value": "http://myurl.org/acton-path1"
+		}, {
+			"config-action": "",
+			"value": "http://myurl.org/acton-path2"
+		}]
+	}
+}

@@ -1,0 +1,35 @@
+{
+	"metrics": [{
+		"metric-name": "energy",
+		"metric-values": [{
+			"name": "port.energy",
+			"resource": "node.port",
+			"unit": "Watt",
+			"type": "CUMULATIVE"
+		}, {
+			"name": "node.energy",
+			"resource": "node",
+			"unit": "Watt",
+			"type": "CUMULATIVE"
+		}]
+	}, {
+		"metric-name": "packet-loss",
+		"metric-values": [{
+			"name": "port.loss",
+			"resource": "node.card.port",
+			"unit": "pps",
+			"type": "CUMULATIVE"
+		}]
+	}],
+	"communication": {
+		"protocol": "REST",
+		"endpoints": [{
+			"metric": "energy",
+			"value": "http://myurl.org/metrics/1"
+		}, {
+			"metric": "packet-loss",
+			"value": "http://myurl.org/metrics/2"
+		}],
+		"method": "PULL"
+	}
+}
