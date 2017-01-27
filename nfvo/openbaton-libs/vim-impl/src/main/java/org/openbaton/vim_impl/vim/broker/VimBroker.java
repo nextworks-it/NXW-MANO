@@ -30,6 +30,7 @@ import org.openbaton.nfvo.vim_interfaces.vim.Vim;
 import org.openbaton.vim.drivers.interfaces.ClientInterfaces;
 import org.openbaton.vim_impl.vim.AmazonVIM;
 import org.openbaton.vim_impl.vim.GenericVIM;
+import org.openbaton.vim_impl.vim.Openstack4jVIM;
 import org.openbaton.vim_impl.vim.OpenstackVIM;
 import org.openbaton.vim_impl.vim.TestVIM;
 import org.slf4j.Logger;
@@ -219,6 +220,28 @@ public class VimBroker implements org.openbaton.nfvo.vim_interfaces.vim.VimBroke
               Integer.parseInt(pluginTimeout));
         }
         return new OpenstackVIM(
+            rabbitUsername,
+            rabbitPassword,
+            brokerIp,
+            Integer.parseInt(port),
+            this.managementPort,
+            context,
+            pluginName,
+            Integer.parseInt(pluginTimeout));
+      case "openstack4j":
+        //                return (Vim) context.getBean("openstack4jVIM", this.port, context);
+        if (pluginName != null) {
+          return new Openstack4jVIM(
+              rabbitUsername,
+              rabbitPassword,
+              brokerIp,
+              Integer.parseInt(port),
+              this.managementPort,
+              context,
+              pluginName,
+              Integer.parseInt(pluginTimeout));
+        }
+        return new Openstack4jVIM(
             rabbitUsername,
             rabbitPassword,
             brokerIp,
