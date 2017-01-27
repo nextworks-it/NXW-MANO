@@ -18,7 +18,18 @@ package org.openbaton.drivers.openstack4j;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import org.apache.commons.codec.binary.Base64;
 import org.openbaton.catalogue.mano.common.DeploymentFlavour;
 import org.openbaton.catalogue.nfvo.NFVImage;
@@ -54,19 +65,6 @@ import org.openstack4j.model.network.RouterInterface;
 import org.openstack4j.openstack.OSFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.TimeoutException;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 /** Created by gca on 10/01/17. */
 public class OpenStack4JDriver extends VimDriver {
@@ -268,11 +266,8 @@ public class OpenStack4JDriver extends VimDriver {
     List<NetFloatingIP> res = new ArrayList<>();
     for (NetFloatingIP floatingIP : floatingIPs) {
       if (isV3API(vimInstance) && floatingIP.getTenantId().equals(vimInstance.getTenant())
-          || (!isV3API(vimInstance)
-              && floatingIP
-                  .getTenantId()
-                  .equals(getTenantFromName(os, vimInstance.getTenant()).getId())))
-        if (floatingIP.getFixedIpAddress() == null || floatingIP.getFixedIpAddress().equals("")) {
+          || (!isV3API(vimInstance) && true)) //FIX-GIACOMO
+      if (floatingIP.getFixedIpAddress() == null || floatingIP.getFixedIpAddress().equals("")) {
           res.add(floatingIP);
         }
     }
@@ -340,10 +335,8 @@ public class OpenStack4JDriver extends VimDriver {
       List<? extends org.openstack4j.model.compute.Server> servers = os.compute().servers().list();
       for (org.openstack4j.model.compute.Server srv : servers) {
         if ((isV3API(vimInstance) && srv.getTenantId().equals(vimInstance.getTenant())
-            || (!isV3API(vimInstance)
-                && srv.getTenantId()
-                    .equals(getTenantFromName(os, vimInstance.getTenant()).getId()))))
-          obServers.add(Utils.getServer(srv, null));
+            || (!isV3API(vimInstance) && true))) //FIX-GIACOMO
+        obServers.add(Utils.getServer(srv, null));
       }
     } catch (Exception e) {
       log.error(e.getMessage(), e);
@@ -360,12 +353,7 @@ public class OpenStack4JDriver extends VimDriver {
           os.networking().network().list();
       List<Network> nfvNetworks = new ArrayList<>();
       for (org.openstack4j.model.network.Network network : networks) {
-        if ((network.isRouterExternal() || network.isShared())
-            || (isV3API(vimInstance) && network.getTenantId().equals(vimInstance.getTenant())
-                || (!isV3API(vimInstance)
-                    && network
-                        .getTenantId()
-                        .equals(getTenantFromName(os, vimInstance.getTenant()).getId())))) {
+        if (true) { //FIX-GIACOMO: get all Networks irrespectively of tenant
           Network nfvNetwork = Utils.getNetwork(network);
           if (network.getSubnets() != null && !network.getSubnets().isEmpty()) {
             for (String subnetId : network.getSubnets()) {
@@ -667,11 +655,8 @@ public class OpenStack4JDriver extends VimDriver {
     List<Router> routers = new ArrayList<>();
     for (Router router : tmpRouters)
       if ((isV3API(vimInstance) && router.getTenantId().equals(vimInstance.getTenant())
-          || (!isV3API(vimInstance)
-              && router
-                  .getTenantId()
-                  .equals(getTenantFromName(os, vimInstance.getTenant()).getId()))))
-        routers.add(router);
+          || (!isV3API(vimInstance) && true))) //FIX-GIACOMO: not consider tenant
+      routers.add(router);
     RouterInterface iface;
     if (routers != null && !routers.isEmpty()) {
       Router router = routers.get(0);
