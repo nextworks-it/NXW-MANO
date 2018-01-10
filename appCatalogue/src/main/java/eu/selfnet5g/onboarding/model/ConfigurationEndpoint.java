@@ -2,6 +2,7 @@ package eu.selfnet5g.onboarding.model;
 
 import java.util.UUID;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
@@ -24,6 +25,7 @@ public class ConfigurationEndpoint {
 	
 	private String configAction;
 	
+	@Column(length = 65536)
 	private String value;
 	
 	public ConfigurationEndpoint() {

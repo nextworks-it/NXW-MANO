@@ -1,5 +1,8 @@
 package eu.selfnet5g.onboarding.messages;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -7,7 +10,9 @@ import com.fasterxml.jackson.annotation.JsonRawValue;
 
 import eu.selfnet5g.onboarding.model.AppConfiguration;
 import eu.selfnet5g.onboarding.model.AppMonitoring;
+import eu.selfnet5g.onboarding.model.PNFAppDescriptor;
 import eu.selfnet5g.onboarding.model.SDNAppDescriptor;
+import eu.selfnet5g.onboarding.model.VMImage;
 
 public class AppUpdateNotificationMessage extends AppNotificationMessage {
 
@@ -23,10 +28,16 @@ public class AppUpdateNotificationMessage extends AppNotificationMessage {
 	private String vnfd;
 	
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
+	private Set<VMImage> vmImages = new HashSet<>();
+	
+	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	private String scriptsLink;
 	
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	private SDNAppDescriptor sdnd;
+	
+	@JsonInclude(JsonInclude.Include.NON_EMPTY)
+	private PNFAppDescriptor pnfd;
 	
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	private AppConfiguration configuration;
@@ -62,6 +73,16 @@ public class AppUpdateNotificationMessage extends AppNotificationMessage {
 		this.vnfd = vnfd;
 	}
 
+	@JsonProperty("new-vm-images")
+	public Set<VMImage> getVmImages() {
+		return vmImages;
+	}
+	
+	@JsonIgnore
+	public void setVmImages(Set<VMImage> vmImages) {
+		this.vmImages = vmImages;
+	}
+	
 	@JsonProperty("new-scripts-link")
 	public String getScriptsLink() {
 		return scriptsLink;
@@ -82,6 +103,16 @@ public class AppUpdateNotificationMessage extends AppNotificationMessage {
 		this.sdnd = sdnd;
 	}
 
+	@JsonProperty("new-pnf-descriptor")
+	public PNFAppDescriptor getPnfd() {
+		return pnfd;
+	}
+
+	@JsonIgnore
+	public void setPnfd(PNFAppDescriptor pnfd) {
+		this.pnfd = pnfd;
+	}
+	
 	@JsonProperty("new-configuration")
 	public AppConfiguration getConfiguration() {
 		return configuration;

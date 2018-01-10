@@ -1,0 +1,7 @@
+{
+	"app-family": "SENSOR",
+	"app-class": "PNF",
+	"app-type": "ovs.gtp",
+	"app-name": "openvswitch",
+	"app-version": "1.1"
+}

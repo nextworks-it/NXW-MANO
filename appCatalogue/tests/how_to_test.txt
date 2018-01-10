@@ -11,6 +11,9 @@
 # onboard a SDN APP
 ./test_onboard_sdn
 
+# onboard a PNF
+./test_onboard_pnf
+
 # get app package
 curl "http://localhost:8081/app-catalogue/app-packages/{id}"
 
@@ -42,7 +45,7 @@ curl "http://localhost:8081/app-catalogue/config/vims/{vim-name}"
 curl "http://localhost:8081/app-catalogue/config/vims"
 
 # delete VIM
-curl -X DELETE "http://localhost:8081/app-catalogue/vims/{vim-name}"
+curl -X DELETE "http://localhost:8081/app-catalogue/config/vims/{vim-name}"
 
 #################################################################################
 #################################################################################

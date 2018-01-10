@@ -3,8 +3,8 @@
 The App Catalogue is a Maven project and implements the SELFNET NFV-app and SDN-app repository.
 Main functions include:
 
-* VNFs, SDN apps and SDN ctrl apps onboarding in the form of App Packages (i.e. tar archives)
-* VNFs, SDN apps and SDN ctrl apps query
+* VNFs, PNFs, SDN apps and SDN ctrl apps onboarding in the form of App Packages (i.e. tar archives)
+* VNFs, PNFs, SDN apps and SDN ctrl apps query
 * App Package query
 * App Package enable/disable
 * App Package offboard

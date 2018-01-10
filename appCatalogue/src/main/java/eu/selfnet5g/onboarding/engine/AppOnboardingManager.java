@@ -37,10 +37,12 @@ import eu.selfnet5g.onboarding.model.ConfigurationCommunication;
 import eu.selfnet5g.onboarding.model.ConfigurationEndpoint;
 import eu.selfnet5g.onboarding.model.ConfigurationParameter;
 import eu.selfnet5g.onboarding.model.ConfigurationValue;
+import eu.selfnet5g.onboarding.model.LifecycleAction;
 import eu.selfnet5g.onboarding.model.MetricValue;
 import eu.selfnet5g.onboarding.model.MonitoringCommunication;
 import eu.selfnet5g.onboarding.model.MonitoringEndpoint;
 import eu.selfnet5g.onboarding.model.MonitoringMetric;
+import eu.selfnet5g.onboarding.model.PNFAppDescriptor;
 import eu.selfnet5g.onboarding.model.SDNAppDescriptor;
 import eu.selfnet5g.onboarding.model.VMImage;
 import eu.selfnet5g.onboarding.repo.AppArchiveRepository;
@@ -52,10 +54,12 @@ import eu.selfnet5g.onboarding.repo.ConfigurationCommunicationRepository;
 import eu.selfnet5g.onboarding.repo.ConfigurationEndpointRepository;
 import eu.selfnet5g.onboarding.repo.ConfigurationParameterRepository;
 import eu.selfnet5g.onboarding.repo.ConfigurationValueRepository;
+import eu.selfnet5g.onboarding.repo.LifecycleActionRepository;
 import eu.selfnet5g.onboarding.repo.MetricValueRepository;
 import eu.selfnet5g.onboarding.repo.MonitoringCommunicationRepository;
 import eu.selfnet5g.onboarding.repo.MonitoringEndpointRepository;
 import eu.selfnet5g.onboarding.repo.MonitoringMetricRepository;
+import eu.selfnet5g.onboarding.repo.PNFAppDescriptorRepository;
 import eu.selfnet5g.onboarding.repo.SDNAppDescriptorRepository;
 import eu.selfnet5g.onboarding.repo.VMImageRepository;
 
@@ -92,6 +96,12 @@ public class AppOnboardingManager implements AppOnboarding {
 	
 	@Autowired
 	private SDNAppDescriptorRepository sdnAppDescriptorRepository;
+	
+	@Autowired
+	private PNFAppDescriptorRepository pnfAppDescriptorRepository;
+	
+	@Autowired
+	private LifecycleActionRepository lifecycleActionRepository;
 	
 	@Autowired
 	private AppConfigurationRepository appConfigurationRepository;
@@ -132,6 +142,7 @@ public class AppOnboardingManager implements AppOnboarding {
 		//init archive contents
 		AppMetadata metadata = null;
 		SDNAppDescriptor sdnd = null;
+		PNFAppDescriptor pnfd = null;
 		VirtualNetworkFunctionDescriptor vnfd = null;
 		String vnfdJson = null;
 		AppMonitoring appMonitoring = null;
@@ -193,7 +204,8 @@ public class AppOnboardingManager implements AppOnboarding {
 			log.error(err);
 			throw new Exception(err);
 		}
-		if ((metadata.getAppClass() != AppClass.VNF) &&
+		if (((metadata.getAppClass() == AppClass.SDN_APP) ||
+			(metadata.getAppClass() == AppClass.SDN_CTRL_APP)) &&
 			(metadata.getAppArchive() == null)) {
 			String err = "Validation failed: missing app-archive info into metadata.json within the SDN App Package";
 			log.error(err);
@@ -225,6 +237,17 @@ public class AppOnboardingManager implements AppOnboarding {
 						throw new Exception(e.getMessage());
 					}
 					log.debug("Created VNFD");
+				} else if (metadata.getAppClass() == AppClass.PNF) {
+					//convert to pnfd
+					String pnfdJson = new String(content);
+					log.debug("Content of json is: " + pnfdJson);
+					try {			
+						pnfd =	mapper.readValue(pnfdJson, PNFAppDescriptor.class);
+					} catch (Exception e) {
+						log.error("Failed mapping app-descriptor into PNFD: " + e.getMessage());
+						throw new Exception(e.getMessage());
+					}
+					log.debug("Created PNF App Descriptor");
 				} else {
 					//convert to sdn-d
 					String sdndJson = new String(content);
@@ -292,24 +315,40 @@ public class AppOnboardingManager implements AppOnboarding {
 				throw new Exception("Missing VIM info");
 			}
 		}
-		if ((metadata.getAppClass() != AppClass.VNF) &&
+		if ((metadata.getAppClass() == AppClass.SDN_APP ||
+			metadata.getAppClass() == AppClass.SDN_CTRL_APP) &&
 			(sdnd == null)) {
 			log.error("Validation failed: missing SDN App Descriptor");
 			throw new Exception("Missing SDN App Descriptor");
-		}	
+		}
+		if (metadata.getAppClass() == AppClass.PNF  &&
+			pnfd == null) {
+				log.error("Validation failed: missing PNF App Descriptor");
+				throw new Exception("Missing PNF App Descriptor");
+			}
 		
 		try {
 			//register the app (VIM vs. SDNO depending on appClass)
 			if (metadata.getAppClass() == AppClass.VNF) {
-				openstackGlanceService.registerNewApp(metadata);
-			} else {
-				String appTypeOrderId = sdnoAppRegistration.registerNewApp(metadata);
+				Map<String,String> res = openstackGlanceService.registerNewApp(metadata);
+				
+				for (Map.Entry<String,String> id : res.entrySet()) {
+					for (VMImage vmI : metadata.getVmImages()) {
+						if (vmI.getName().equalsIgnoreCase(id.getKey())) {
+							vmI.setVimId(id.getValue());
+						}
+					}
+				}
+				
+			} else if (metadata.getAppClass() == AppClass.SDN_APP ||
+					   metadata.getAppClass() == AppClass.SDN_CTRL_APP) {
+				Map<String,String> res = sdnoAppRegistration.registerNewApp(metadata);
 				//set orderId to metadata to be properly persisted below
-				metadata.setAppTypeOrderId(appTypeOrderId);
+				metadata.setAppTypeOrderId(res.get("orderId"));
 			}
 			
 			//persist package
-			AppPackage pckg = persistAppPackage(metadata, appMonitoring, appConfiguration, vnfdJson, sdnd);
+			AppPackage pckg = persistAppPackage(metadata, appMonitoring, appConfiguration, vnfdJson, sdnd, pnfd);
 		
 			//going to send notification over the message bus
 			//need to explicitely set package content as they are not included in db entity.
@@ -318,6 +357,7 @@ public class AppOnboardingManager implements AppOnboarding {
 			pckg.setConfiguration(appConfiguration);
 			pckg.setVnfDescriptor(vnfdJson);
 			pckg.setSdnAppDescriptor(sdnd);
+			pckg.setPnfAppDescriptor(pnfd);
 			
 			appNotificationManager.appOnboardNotification(pckg);
 			
@@ -347,7 +387,8 @@ public class AppOnboardingManager implements AppOnboarding {
 	}
 	
 	private AppPackage persistAppPackage(AppMetadata metadata, AppMonitoring appMonitoring,
-							       		 AppConfiguration appConfiguration, String vnfdJson, SDNAppDescriptor sdnd) throws Exception {
+							       		 AppConfiguration appConfiguration, String vnfdJson,
+							       		 SDNAppDescriptor sdnd, PNFAppDescriptor pnfd) throws Exception {
 		
 		try {
 			//going to save into db
@@ -367,8 +408,14 @@ public class AppOnboardingManager implements AppOnboarding {
 			persistAppConfiguration(appConfiguration, appPckg);
 			
 			//sdn-descriptor
-			if (metadata.getAppClass() != AppClass.VNF) {
+			if (metadata.getAppClass() == AppClass.SDN_APP ||
+				metadata.getAppClass() == AppClass.SDN_CTRL_APP) {
 				persistSdnAppDescriptor(sdnd, appPckg);
+			}
+			
+			//pnf-descriptor
+			if (metadata.getAppClass() == AppClass.PNF) {
+				persistPnfAppDescriptor(pnfd, appPckg);
 			}
 						
 			log.info("App Package " + appPckg.getId() + " stored into DB");
@@ -466,6 +513,25 @@ public class AppOnboardingManager implements AppOnboarding {
 		
 	}
 	
+	private void persistPnfAppDescriptor(PNFAppDescriptor pnfd, AppPackage appPckg) throws Exception {
+		
+		PNFAppDescriptor pnfdDb = new PNFAppDescriptor(appPckg, pnfd.getVendor(), pnfd.getName(), pnfd.getVersion());
+		
+		for (Map.Entry<String,String> e : pnfd.getMetadata().entrySet()) {
+			pnfdDb.addMetadataKeyValue(e.getKey(), e.getValue());
+		}
+		
+		pnfdDb = pnfAppDescriptorRepository.save(pnfdDb);
+		
+		for (LifecycleAction action : pnfd.getLifecycleActions()) {
+			
+			LifecycleAction actionDb = new LifecycleAction(pnfdDb,
+					                                       action.getEvent(),
+														   action.getAction());
+			lifecycleActionRepository.save(actionDb);
+
+		}		
+	}
 	
 	private void persistAppMetadata(AppMetadata metadata, AppPackage appPckg) throws Exception {
 		
@@ -487,6 +553,7 @@ public class AppOnboardingManager implements AppOnboarding {
 			for (VMImage vm : metadata.getVmImages()) {				
 				VMImage vmDb = new VMImage(metadataDb,
 										   vm.getName(),
+										   vm.getVimId(),
 										   vm.getLink(),
 										   vm.getDiskFormat(),
 										   vm.getMinDisk(),
@@ -543,9 +610,15 @@ public class AppOnboardingManager implements AppOnboarding {
 			throw new InternalServerErrorException("New App Package contains VNFD but odl package is not VNF.");
 		}
 		if (newPckg.getSdnAppDescriptor() != null &&
-			pckg.get().getMetadata().getAppClass() == AppClass.VNF) {
-			log.error("New App Package contains SDND but odl package is  VNF.");
-			throw new InternalServerErrorException("New App Package contains SDND but odl package is VNF.");
+			pckg.get().getMetadata().getAppClass() != AppClass.SDN_APP &&
+			pckg.get().getMetadata().getAppClass() != AppClass.SDN_CTRL_APP) {
+			log.error("New App Package contains SDND but odl package is  not SDN App or SDN Ctrl App.");
+			throw new InternalServerErrorException("New App Package contains SDND but odl package is not SDN App or SDN Ctrl App.");
+		}
+		if (newPckg.getPnfAppDescriptor() != null &&
+			pckg.get().getMetadata().getAppClass() != AppClass.PNF) {
+			log.error("New App Package contains VNFD but odl package is not VNF.");
+			throw new InternalServerErrorException("New App Package contains PNFD but odl package is not PNF.");
 		}
 		//
 		
@@ -554,14 +627,23 @@ public class AppOnboardingManager implements AppOnboarding {
 			// first, check if new software has to be updated
 			if (metadata.getAppArchive() != null ||
 			    !metadata.getVmImages().isEmpty()) {
-							
 				//register the new app (VIM vs. SDNO depending on appClass)
 				if (metadata.getAppClass() == AppClass.VNF) {
-					openstackGlanceService.registerNewApp(metadata);
-				} else {
-					String appTypeOrderId = sdnoAppRegistration.registerNewApp(metadata);
+					Map<String,String> res = openstackGlanceService.registerNewApp(metadata);
+					
+					for (Map.Entry<String,String> id : res.entrySet()) {
+						for (VMImage vmI : metadata.getVmImages()) {
+							if (vmI.getName().equalsIgnoreCase(id.getKey())) {
+								vmI.setVimId(id.getValue());
+							}
+						}
+					}
+					
+				} else if (metadata.getAppClass() == AppClass.SDN_APP ||
+						   metadata.getAppClass() == AppClass.SDN_CTRL_APP) {
+					Map<String,String> res = sdnoAppRegistration.registerNewApp(metadata);
 					//set orderId to metadata to be properly persisted below
-					metadata.setAppTypeOrderId(appTypeOrderId);
+					metadata.setAppTypeOrderId(res.get("orderId"));
 				}
 			}
 			
@@ -586,6 +668,11 @@ public class AppOnboardingManager implements AppOnboarding {
 			//fifth, check if vnfd is updated
 			if (newPckg.getVnfDescriptor() != null) {
 				updateVnfDescriptor(newPckg.getVnfDescriptor(), packageId);
+			}
+			
+			//sixth, check if vnfd is updated
+			if (newPckg.getPnfAppDescriptor() != null) {
+				updatePNFAppDescriptor(newPckg.getPnfAppDescriptor().getId(), newPckg.getPnfAppDescriptor(), packageId);
 			}
 						
 			//send notification over message bus
@@ -651,6 +738,7 @@ public class AppOnboardingManager implements AppOnboarding {
 			for (VMImage vm : newMetadata.getVmImages()) {				
 				VMImage vmDb = new VMImage(metadataDb,
 						vm.getName(),
+						vm.getVimId(),
 						vm.getLink(),
 						vm.getDiskFormat(),
 						vm.getMinDisk(),
@@ -799,6 +887,43 @@ public class AppOnboardingManager implements AppOnboarding {
 		sdndDb = sdnAppDescriptorRepository.save(sdndDb);
 	}
 	
+	private void updatePNFAppDescriptor(String oldDescriptorId, PNFAppDescriptor newDescriptor, String packageId) throws Exception {
+		
+		log.info("Updating App Package PNFD");
+		
+		Optional<PNFAppDescriptor> descriptor = pnfAppDescriptorRepository.findById(oldDescriptorId);
+		if (!descriptor.isPresent()) {
+			throw new Exception("Cannot delete PNF descriptor info. Id not found");
+		}
+		
+		descriptor.get().getAppPackage().setPnfAppDescriptor(null);
+		descriptor.get().setAppPackage(null);
+		pnfAppDescriptorRepository.save(descriptor.get());
+		pnfAppDescriptorRepository.delete(descriptor.get());
+
+		Optional<AppPackage> pckg = appPackageRepository.findById(packageId);
+		if (!pckg.isPresent()) {
+			log.error("App Package not found in DB");
+			throw new EntityNotFoundException(packageId);
+		}
+		
+		PNFAppDescriptor pnfdDb = new PNFAppDescriptor(pckg.get(),
+													   newDescriptor.getVendor(),
+													   newDescriptor.getName(),
+													   newDescriptor.getVersion());
+		pnfdDb = pnfAppDescriptorRepository.save(pnfdDb);
+		
+		
+		for (LifecycleAction action : newDescriptor.getLifecycleActions()) {
+			
+			LifecycleAction actionDb = new LifecycleAction(pnfdDb,
+					                                       action.getEvent(),
+														   action.getAction());
+			lifecycleActionRepository.save(actionDb);
+
+		}		
+	} 
+	
 	public void appOffboard(String packageId) throws EntityNotFoundException, MethodNotAllowedException, InternalServerErrorException {
 		log.info("Off-boarding App Package Id: " + packageId);
 		
@@ -809,15 +934,20 @@ public class AppOnboardingManager implements AppOnboarding {
 		}
 		
 		if (pckg.get().getStatus() == AppPackageStatus.ENABLED) {
+			log.error("App Package status in ENABLED");
 			throw new MethodNotAllowedException("AppPackage status is ENABLED");
 		}
 		
 		try {
 			//uregister the app (VIM vs. SDNO depending on appClass)
-			if (pckg.get().getMetadata().getAppClass() == AppClass.VNF) {			
+			if (pckg.get().getMetadata().getAppClass() == AppClass.VNF) {
 				openstackGlanceService.unregisterApp(pckg.get().getMetadata());
-			} else {
+			} else if (pckg.get().getMetadata().getAppClass() == AppClass.SDN_APP ||
+					pckg.get().getMetadata().getAppClass() == AppClass.SDN_CTRL_APP) {
 				sdnoAppRegistration.unregisterApp(pckg.get().getMetadata());
+			} else {
+				//PNF case
+				//do nothing
 			}
 				
 			//send notification over message bus
@@ -852,6 +982,18 @@ public class AppOnboardingManager implements AppOnboarding {
 		log.info("Retrieving all App Packages");
 		
 		return appPackageRepository.findAll();
+	}
+	
+	public Collection<AppPackage> appsGetByClass(AppClass appClass) throws Exception {
+		log.info("Retrieving App Packages by Class");
+		
+		return appPackageRepository.findByMetadataAppClass(appClass);
+	}
+	
+	public Collection<AppPackage> appsGetByType(String appType) throws Exception {
+		log.info("Retrieving App Packages by Type");
+		
+		return appPackageRepository.findByMetadataAppType(appType);
 	}
 	
 	public void appEnable(String packageId) throws EntityNotFoundException, InternalServerErrorException {

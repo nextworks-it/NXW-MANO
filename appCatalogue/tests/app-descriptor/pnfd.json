@@ -1,0 +1,12 @@
+{
+	"vendor":  "nextworks",
+	"name": "test-pnf",
+	"version": "1.0",
+	"lifecycle-actions": {
+			"event": "INSTANTIATE",
+			"action": "start"
+		}, {
+                       "event": "CONFIGURE",
+                       "action": "configure"
+		}]
+}

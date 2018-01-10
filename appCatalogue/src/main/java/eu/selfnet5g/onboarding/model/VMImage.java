@@ -24,6 +24,10 @@ public class VMImage {
 	
 	private String name;
 	
+	@JsonInclude(JsonInclude.Include.NON_EMPTY)
+	private String vimId;
+	
+	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	private String link;
 	
 	private ContainerFormat containerFormat;
@@ -45,6 +49,7 @@ public class VMImage {
 
 	public VMImage(AppMetadata appMetadata,
 				   String name,
+				   String vimId,
 				   String link,
 				   DiskFormat diskFormat,
 				   String minDisk,
@@ -52,6 +57,7 @@ public class VMImage {
 				   String minRam) {
 		this.appMetadata = appMetadata;
 		this.name = name;
+		this.vimId = vimId;
 		this.link = link;
 		this.diskFormat = diskFormat;
 		this.minDisk = minDisk;
@@ -74,7 +80,17 @@ public class VMImage {
 	public String getName() {
 		return name;
 	}
+	
+	@JsonProperty("vimId")
+	public String getVimId() {
+		return vimId;
+	}
 
+	@JsonIgnore
+	public void setVimId(String vimId) {
+		this.vimId = vimId;
+	}
+	
 	@JsonProperty("link")
 	public String getLink() {
 		return link;

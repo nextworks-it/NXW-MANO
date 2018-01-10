@@ -1,5 +1,8 @@
 package eu.selfnet5g.onboarding.messages;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -9,7 +12,9 @@ import eu.selfnet5g.onboarding.model.AppClass;
 import eu.selfnet5g.onboarding.model.AppConfiguration;
 import eu.selfnet5g.onboarding.model.AppFamily;
 import eu.selfnet5g.onboarding.model.AppMonitoring;
+import eu.selfnet5g.onboarding.model.PNFAppDescriptor;
 import eu.selfnet5g.onboarding.model.SDNAppDescriptor;
+import eu.selfnet5g.onboarding.model.VMImage;
 
 public class AppOnboardNotificationMessage extends AppNotificationMessage {
 
@@ -31,10 +36,16 @@ public class AppOnboardNotificationMessage extends AppNotificationMessage {
 	private String vnfd;
 	
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
+	private Set<VMImage> vmImages = new HashSet<>();
+	
+	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	private String scriptsLink;
 	
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	private SDNAppDescriptor sdnd;
+	
+	@JsonInclude(JsonInclude.Include.NON_EMPTY)
+	private PNFAppDescriptor pnfd;
 	
 	private AppConfiguration configuration;
 	
@@ -100,6 +111,16 @@ public class AppOnboardNotificationMessage extends AppNotificationMessage {
 	public void setVnfd(String vnfd) {
 		this.vnfd = vnfd;
 	}
+	
+	@JsonProperty("vm-images")
+	public Set<VMImage> getVmImages() {
+		return vmImages;
+	}
+	
+	@JsonIgnore
+	public void setVmImages(Set<VMImage> vmImages) {
+		this.vmImages = vmImages;
+	}
 
 	@JsonProperty("scripts-link")
 	public String getScriptsLink() {
@@ -119,6 +140,16 @@ public class AppOnboardNotificationMessage extends AppNotificationMessage {
 	@JsonIgnore
 	public void setSdnd(SDNAppDescriptor sdnd) {
 		this.sdnd = sdnd;
+	}
+	
+	@JsonProperty("pnf-descriptor")
+	public PNFAppDescriptor getPnfd() {
+		return pnfd;
+	}
+
+	@JsonIgnore
+	public void setPnfd(PNFAppDescriptor pnfd) {
+		this.pnfd = pnfd;
 	}
 
 	@JsonProperty("configuration")

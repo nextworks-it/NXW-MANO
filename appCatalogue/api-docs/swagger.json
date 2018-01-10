@@ -96,17 +96,25 @@
 		"/app-catalogue/app-packages/ids": {
 			"get": {
 				"tags": ["app-package-rest-controller"],
-				"summary": "APP Packages Query (app-id list)",
-				"operationId": "getAppPackagesIdsUsingGET",
+				"summary": "APP Packages Query - per app-class (app short-info list)",
+				"operationId": "getAppPackagesIdsFilteredByClassUsingGET",
 				"consumes": ["application/json"],
 				"produces": ["*/*"],
+				"parameters": [{
+					"name": "app-class",
+					"in": "query",
+					"description": "app-class",
+					"required": true,
+					"type": "string",
+					"enum": ["VNF", "SDN_APP", "SDN_CTRL_APP", "PNF"]
+				}],
 				"responses": {
 					"200": {
 						"description": "Success",
 						"schema": {
 							"type": "array",
 							"items": {
-								"type": "string"
+								"$ref": "#/definitions/AppInfo"
 							}
 						}
 					},
@@ -629,6 +637,10 @@
 				"id": {
 					"type": "string"
 				},
+				"interfaceId": {
+					"type": "integer",
+					"format": "int32"
+				},
 				"type": {
 					"type": "string"
 				},
@@ -776,6 +788,18 @@
 				}
 			}
 		},
+		"LifecycleAction": {
+			"type": "object",
+			"properties": {
+				"action": {
+					"type": "string"
+				},
+				"event": {
+					"type": "string",
+					"enum": ["INSTANTIATE", "START", "STOP", "CONFIGURE", "SCALE_IN", "SCALE_DOWN", "SCALE_UP", "SCALE_OUT", "TERMINATE"]
+				}
+			}
+		},
 		"ConfigurationEndpoint": {
 			"type": "object",
 			"properties": {
@@ -811,6 +835,9 @@
 					"type": "string"
 				},
 				"name": {
+					"type": "string"
+				},
+				"vimId": {
 					"type": "string"
 				}
 			}
@@ -1114,6 +1141,32 @@
 					"items": {
 						"$ref": "#/definitions/VNFForwardingGraphDescriptor"
 					}
+				}
+			}
+		},
+		"PNFAppDescriptor": {
+			"type": "object",
+			"properties": {
+				"lifecycle-actions": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/LifecycleAction"
+					}
+				},
+				"metadata": {
+					"type": "object",
+					"additionalProperties": {
+						"type": "string"
+					}
+				},
+				"name": {
+					"type": "string"
+				},
+				"vendor": {
+					"type": "string"
+				},
+				"version": {
+					"type": "string"
 				}
 			}
 		},
@@ -1524,6 +1577,28 @@
 				}
 			}
 		},
+		"AppInfo": {
+			"type": "object",
+			"properties": {
+				"class": {
+					"type": "string",
+					"enum": ["VNF", "SDN_APP", "SDN_CTRL_APP", "PNF"]
+				},
+				"id": {
+					"type": "string"
+				},
+				"name": {
+					"type": "string"
+				},
+				"status": {
+					"type": "string",
+					"enum": ["ENABLED", "DISABLED"]
+				},
+				"type": {
+					"type": "string"
+				}
+			}
+		},
 		"MonitoringMetric": {
 			"type": "object",
 			"properties": {
@@ -1567,6 +1642,9 @@
 				},
 				"monitoring": {
 					"$ref": "#/definitions/AppMonitoring"
+				},
+				"pnf-descriptor": {
+					"$ref": "#/definitions/PNFAppDescriptor"
 				},
 				"sdn-descriptor": {
 					"$ref": "#/definitions/SDNAppDescriptor"
@@ -1689,7 +1767,7 @@
 				},
 				"app-class": {
 					"type": "string",
-					"enum": ["VNF", "SDN_APP", "SDN_CTRL_APP"]
+					"enum": ["VNF", "SDN_APP", "SDN_CTRL_APP", "PNF"]
 				},
 				"app-family": {
 					"type": "string",

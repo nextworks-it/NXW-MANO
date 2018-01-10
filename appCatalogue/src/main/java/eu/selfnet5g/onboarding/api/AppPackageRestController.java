@@ -68,7 +68,11 @@ public class AppPackageRestController {
 		@ApiResponse(code = 500, message = "Internal Server Error")}) 
 	public ResponseEntity<String> offBoardAppPackage(@PathVariable String packageId) throws Exception {
 		
-		appOnboardingManager.appOffboard(packageId);
+		try {
+			appOnboardingManager.appOffboard(packageId);
+		} catch (Exception e) {
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
+		}
 		return new ResponseEntity<String>(HttpStatus.OK);
 
 	}
@@ -120,20 +124,63 @@ public class AppPackageRestController {
 	}
 	
 	@RequestMapping(value="/ids", method=RequestMethod.GET)
-	@ApiOperation(value = "APP Packages Query (app-id list)")
+	@ApiOperation(value = "APP Packages Query (app short info list)")
 	@ApiResponses(value = { 
         @ApiResponse(code = 200, message = "Success"),
         @ApiResponse(code = 404, message = "Entity Not Found"),
 		@ApiResponse(code = 500, message = "Internal Server Error")}) 
-	public ArrayList<String> getAppPackagesIds() throws Exception {		
+	public ArrayList<AppInfo> getAppPackagesIds() throws Exception {		
 		Collection<AppPackage> pckgs = appOnboardingManager.appsGet();
 		
-		ArrayList<String> ids = new ArrayList<>();		
+		ArrayList<AppInfo> infos = new ArrayList<>();		
 		for (AppPackage pckg : pckgs) {
-			ids.add(pckg.getId());
+			AppInfo info = new AppInfo(pckg.getId(), pckg.getMetadata().getAppName(),
+					   				   pckg.getMetadata().getAppType(), pckg.getMetadata().getAppClass(),
+					   				   pckg.getStatus());
+			infos.add(info);
 		}
 		
-		return ids;
+		return infos;
+	}
+	
+	@RequestMapping(value="/ids", method=RequestMethod.GET, params={"app-type"})
+	@ApiOperation(value = "APP Packages Query - per app-type (app short-info list)")
+	@ApiResponses(value = { 
+        @ApiResponse(code = 200, message = "Success"),
+        @ApiResponse(code = 404, message = "Entity Not Found"),
+		@ApiResponse(code = 500, message = "Internal Server Error")}) 
+	public ArrayList<AppInfo> getAppPackagesIdsFilteredByType(@RequestParam("app-type") String appType) throws Exception {		
+		Collection<AppPackage> pckgs = appOnboardingManager.appsGetByType(appType);
+		
+		ArrayList<AppInfo> infos = new ArrayList<>();		
+		for (AppPackage pckg : pckgs) {	
+			AppInfo info = new AppInfo(pckg.getId(), pckg.getMetadata().getAppName(),
+	   				   pckg.getMetadata().getAppType(), pckg.getMetadata().getAppClass(),
+	   				   pckg.getStatus());
+			infos.add(info);
+		}
+		
+		return infos;
+	}
+	
+	@RequestMapping(value="/ids", method=RequestMethod.GET, params={"app-class"})
+	@ApiOperation(value = "APP Packages Query - per app-class (app short-info list)")
+	@ApiResponses(value = { 
+        @ApiResponse(code = 200, message = "Success"),
+        @ApiResponse(code = 404, message = "Entity Not Found"),
+		@ApiResponse(code = 500, message = "Internal Server Error")}) 
+	public ArrayList<AppInfo> getAppPackagesIdsFilteredByClass(@RequestParam("app-class") AppClass appClass) throws Exception {		
+		Collection<AppPackage> pckgs = appOnboardingManager.appsGetByClass(appClass);
+		
+		ArrayList<AppInfo> infos = new ArrayList<>();		
+		for (AppPackage pckg : pckgs) {
+			AppInfo info = new AppInfo(pckg.getId(), pckg.getMetadata().getAppName(),
+	   				   pckg.getMetadata().getAppType(), pckg.getMetadata().getAppClass(),
+	   				   pckg.getStatus());
+			infos.add(info);
+		}
+		
+		return infos;
 	}
 	
 	@RequestMapping(method=RequestMethod.GET)

@@ -55,6 +55,9 @@ public class RabbitNotificationPlugin implements AppNotification {
 		if (msg.getAppClass() == AppClass.VNF) {
 			msg.setVnfd(appPackage.getVnfDescriptor());
 			msg.setScriptsLink(appPackage.getMetadata().getScriptsLink());
+			msg.setVmImages(appPackage.getMetadata().getVmImages());
+		} else if (msg.getAppClass() == AppClass.PNF) {
+			msg.setPnfd(appPackage.getPnfAppDescriptor());
 		} else {
 			msg.setSdnd(appPackage.getSdnAppDescriptor());
 			msg.setAppImplId(appPackage.getMetadata().getAppTypeOrderId());
@@ -172,13 +175,22 @@ public class RabbitNotificationPlugin implements AppNotification {
 		if (newPackage.getSdnAppDescriptor() != null) {
 			msg.setSdnd(newPackage.getSdnAppDescriptor());
 		}
+		
+		if (newPackage.getPnfAppDescriptor() != null) {
+			msg.setPnfd(newPackage.getPnfAppDescriptor());
+		}
+		
+		if (newPackage.getMetadata().getVmImages() != null) {
+			msg.setVmImages(newPackage.getMetadata().getVmImages());
+		}
 		if (newPackage.getMetadata().getScriptsLink() != null) {
 			msg.setScriptsLink(newPackage.getMetadata().getScriptsLink());
 		}
 		if (newPackage.getConfiguration() != null) {
 			msg.setConfiguration(newPackage.getConfiguration());
 		}
-		if (newPackage.getMetadata().getAppClass() != AppClass.VNF) {
+		if (newPackage.getMetadata().getAppClass() == AppClass.SDN_APP ||
+			newPackage.getMetadata().getAppClass() == AppClass.SDN_CTRL_APP ) {
 			msg.setAppImplId(newPackage.getMetadata().getAppTypeOrderId());
 		}
 		

@@ -1,5 +1,7 @@
 package eu.selfnet5g.onboarding.interfaces.plugins;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -28,9 +30,10 @@ public class SDNORestPlugin implements AppRegistration {
 		this.sdnoUrl  = "http://" + sdnoIp + ":" + sdnoPort;
 	}
 	
-	public String registerNewApp(AppMetadata metadata) throws Exception {
+	public Map<String,String> registerNewApp(AppMetadata metadata) throws Exception {
 		
 		String url = "NULL";
+		Map<String,String> res = new HashMap<>();
 		
 		try {
 		
@@ -47,8 +50,9 @@ public class SDNORestPlugin implements AppRegistration {
 					String orderId = httpResponse.getBody().toString();	
 					
 					log.info("Registration done (orderId=" + orderId +")");
+					res.put("orderId", orderId);
 					
-					return orderId;
+					return res;
 					
 				} else {
 					log.error("SDNO REST server returned " + code.toString() + " code.");
@@ -56,7 +60,8 @@ public class SDNORestPlugin implements AppRegistration {
 				}
 			} else {
 				log.info("Registration skipped by configuration (url:"+ url + ")");
-				return UUID.randomUUID().toString();
+				res.put("orderId", UUID.randomUUID().toString());
+				return res;
 			}
 		} catch (Exception e) {
 			log.error("Error while sending POST to " + url + " with body: " + metadata.getAppArchive().getLink());

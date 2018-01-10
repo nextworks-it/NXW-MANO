@@ -49,6 +49,11 @@ public class AppPackage {
 	private SDNAppDescriptor sdnAppDescriptor;
 	
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
+	@OneToOne(fetch=FetchType.EAGER, mappedBy = "appPackage", cascade=CascadeType.ALL, orphanRemoval=true)
+	@OnDelete(action = OnDeleteAction.CASCADE)
+	private PNFAppDescriptor pnfAppDescriptor;
+	
+	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	private AppPackageStatus status;
 	
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
@@ -69,12 +74,14 @@ public class AppPackage {
 					  AppMonitoring monitoring,
 					  AppConfiguration configuration,
 					  SDNAppDescriptor sdnAppDescriptor,
+					  PNFAppDescriptor pnfAppDescriptor,
 					  String vnfDescriptor) {
 		this.metadata = metadata;
 		this.vnfDescriptor = vnfDescriptor;
 		this.monitoring = monitoring;
 		this.configuration = configuration;
 		this.sdnAppDescriptor = sdnAppDescriptor;
+		this.pnfAppDescriptor = pnfAppDescriptor;
 		this.vnfDescriptor = vnfDescriptor;
 		this.status = AppPackageStatus.ENABLED; //by default it's enabled
 	}
@@ -133,6 +140,16 @@ public class AppPackage {
 	@JsonIgnore
 	public void setSdnAppDescriptor(SDNAppDescriptor sdnAppDescriptor) {
 		this.sdnAppDescriptor = sdnAppDescriptor;
+	}
+	
+	@JsonProperty("pnf-descriptor")
+	public PNFAppDescriptor getPnfAppDescriptor() {
+		return pnfAppDescriptor;
+	}
+
+	@JsonIgnore
+	public void setPnfAppDescriptor(PNFAppDescriptor PnfAppDescriptor) {
+		this.pnfAppDescriptor = pnfAppDescriptor;
 	}
 
 	@JsonProperty("vnf-descriptor")
