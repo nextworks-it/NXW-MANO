@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2016 Open Baton (http://www.openbaton.org)
- *
+ * Copyright (c) 2015 Fraunhofer FOKUS
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,7 +11,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.openbaton.catalogue.mano.descriptor;
@@ -34,19 +32,31 @@ public class VNFDConnectionPoint extends ConnectionPoint {
    */
   private String virtual_link_reference;
   private String floatingIp;
+  private int interfaceId;
 
   public VNFDConnectionPoint() {}
 
   @Override
   public String toString() {
     return "VNFDConnectionPoint{"
-        + "floatingIp='"
-        + floatingIp
-        + '\''
-        + ", virtual_link_reference='"
+        + "virtual_link_reference='"
         + virtual_link_reference
         + '\''
-        + '}';
+        + ", floatingIp='"
+        + floatingIp
+        + '\''
+        + ", interfaceId="
+        + interfaceId
+        + "} "
+        + super.toString();
+  }
+
+  public int getInterfaceId() {
+    return interfaceId;
+  }
+
+  public void setInterfaceId(int interfaceId) {
+    this.interfaceId = interfaceId;
   }
 
   public String getFloatingIp() {

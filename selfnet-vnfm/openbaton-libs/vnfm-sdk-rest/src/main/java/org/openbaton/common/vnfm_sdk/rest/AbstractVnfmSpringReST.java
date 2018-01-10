@@ -22,9 +22,11 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.openbaton.catalogue.nfvo.messages.Interfaces.NFVMessage;
+import org.apache.http.HttpResponse;
 import org.openbaton.catalogue.mano.record.VirtualNetworkFunctionRecord;
 import org.openbaton.catalogue.nfvo.Action;
 import org.openbaton.catalogue.nfvo.Configuration;
+import org.openbaton.catalogue.nfvo.ConfigurationParameter;
 import org.openbaton.catalogue.nfvo.VNFCStatistics;
 import org.openbaton.catalogue.nfvo.messages.OrVnfmGenericMessage;
 import org.openbaton.catalogue.nfvo.messages.OrVnfmConfigureMessage;
@@ -40,8 +42,10 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.annotation.PreDestroy;
@@ -108,11 +112,14 @@ public abstract class AbstractVnfmSpringReST extends AbstractVnfm {
         else
             message = gson.fromJson(jsonNfvMessage, NFVMessage.class);
         try {
-            this.onAction(message);
+            this.onAction(message, false);
         } catch (NotFoundException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
         } catch (BadFormatException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException(e);
         }
@@ -122,10 +129,11 @@ public abstract class AbstractVnfmSpringReST extends AbstractVnfm {
 		  value = "/core-rest-actions/vnf-instance/{vnfId}/configure",
 		  method = RequestMethod.POST,
 		  consumes = MediaType.APPLICATION_JSON_VALUE)
-  @ResponseStatus(HttpStatus.OK)
-  private void configure(@PathVariable String vnfId,
-		  				 @RequestBody Configuration configuration) {
-      log.debug("Received GET message for vnf instance " + vnfId);
+  //@ResponseStatus(HttpStatus.OK)
+  private ResponseEntity<String> configure(@PathVariable String vnfId,
+		  							 @RequestBody Configuration configuration) {
+      log.debug("Received POST message for vnf instance " + vnfId);
+      log.debug("Requested VNF Configuration: " + configuration.toString());
 
       try {
           VirtualNetworkFunctionRecord vnfr = this.query(vnfId);
@@ -134,14 +142,65 @@ public abstract class AbstractVnfmSpringReST extends AbstractVnfm {
           configMsg.setVnfr(vnfr);
           configMsg.setConfigration(configuration);
           
-          this.onAction(configMsg);
+          this.onAction(configMsg, true);
+
+          return new ResponseEntity<>("OK", HttpStatus.OK);
           
       } catch (Exception e) {
-          e.printStackTrace();
-          throw new RuntimeException(e);
+    	  log.error("Error during VNF Configuration: " + e.getMessage());
+          return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); 
       } catch (BadFormatException e) {
-          e.printStackTrace();
-          throw new RuntimeException(e);
+    	  log.error("Error during VNF Configuration: " + e.getMessage());
+    	  return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST); 
+      }
+  }
+  
+  @RequestMapping(
+		  value = "/core-rest-actions/vnf-instance/{vnfId}/configure",
+		  method = RequestMethod.DELETE,
+		  params={"cid"})
+  //@ResponseStatus(HttpStatus.OK)
+  private ResponseEntity<String> configurationDelete(@PathVariable String vnfId,
+		  											 @RequestParam("cid") String cid) {
+      log.debug("Received DELETE configuration message for vnf instance " + vnfId);
+      log.debug("Requested Delete for VNF Configuration: " + cid);
+
+      try {
+          VirtualNetworkFunctionRecord vnfr = this.query(vnfId);
+          
+          OrVnfmConfigureMessage configMsg = new OrVnfmConfigureMessage();
+          configMsg.setVnfr(vnfr);
+          
+          Configuration configuration = new Configuration();
+          configuration.setName("delete-cid-" + cid);
+          
+          ConfigurationParameter paramCid = new ConfigurationParameter();
+          ConfigurationParameter paramDelete = new ConfigurationParameter();
+          
+          paramCid.setConfKey("CID");
+          paramCid.setValue(cid);
+          paramDelete.setConfKey("DELETE");
+          paramDelete.setValue("true");
+          
+          Set<ConfigurationParameter> configurationParameters = new HashSet<>();
+          configurationParameters.add(paramCid);
+          configurationParameters.add(paramDelete);
+          
+          configuration.setConfigurationParameters(configurationParameters);
+          
+          
+          configMsg.setConfigration(configuration);
+          
+          this.onAction(configMsg, true);
+
+          return new ResponseEntity<>("OK", HttpStatus.OK);
+          
+      } catch (Exception e) {
+    	  log.error("Error during VNF Configuration: " + e.getMessage());
+          return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); 
+      } catch (BadFormatException e) {
+    	  log.error("Error during VNF Configuration: " + e.getMessage());
+    	  return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST); 
       }
   }
   

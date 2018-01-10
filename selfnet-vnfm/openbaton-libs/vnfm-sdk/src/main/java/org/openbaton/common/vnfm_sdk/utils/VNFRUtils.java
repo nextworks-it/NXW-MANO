@@ -189,6 +189,7 @@ public class VNFRUtils {
               connectionPoint.getVirtual_link_reference());
           connectionPoint_new.setType(connectionPoint.getType());
           connectionPoint_new.setFloatingIp(connectionPoint.getFloatingIp());
+          connectionPoint_new.setInterfaceId(connectionPoint.getInterfaceId());
           connectionPoints.add(connectionPoint_new);
         }
         component_new.setConnection_point(connectionPoints);

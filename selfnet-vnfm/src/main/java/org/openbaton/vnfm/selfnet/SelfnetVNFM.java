@@ -78,6 +78,9 @@ public class SelfnetVNFM extends AbstractVnfmSpringReST {
 	private String scriptPath;
 
 	private HashMap<String, VirtualNetworkFunctionRecord> vnfrMap = new HashMap<>();
+	
+	//<CID, configuration>
+	private HashMap<String, Configuration> configurationsMap = new HashMap<>();
 
 	@Value("${vnfm.ems.start.timeout:500}")
 	private int waitForEms;
@@ -212,7 +215,7 @@ public class SelfnetVNFM extends AbstractVnfmSpringReST {
 				}
 			}
 
-			log.trace("HB_VERSION == " + virtualNetworkFunctionRecord.getHb_version());
+			log.info("HB_VERSION == " + virtualNetworkFunctionRecord.getHb_version());
 			return virtualNetworkFunctionRecord;
 		} else { // SCALE_IN
 
@@ -237,7 +240,7 @@ public class SelfnetVNFM extends AbstractVnfmSpringReST {
 		Collection<String> res = new ArrayList<>();
 		LifecycleEvent le = VnfmUtils.getLifecycleEvent(virtualNetworkFunctionRecord.getLifecycle_event(), event);
 		if (le != null) {
-			log.trace("The number of scripts for " + virtualNetworkFunctionRecord.getName() + " are: "
+			log.info("The number of scripts for " + virtualNetworkFunctionRecord.getName() + " are: "
 					+ le.getLifecycle_events());
 			for (VirtualDeploymentUnit virtualDeploymentUnit : virtualNetworkFunctionRecord.getVdu()) {
 				for (VNFCInstance vnfcInstanceLocal : virtualDeploymentUnit.getVnfc_instance()) {
@@ -277,7 +280,7 @@ public class SelfnetVNFM extends AbstractVnfmSpringReST {
 
 						String command = getJsonObject("EXECUTE", script, env).toString();
 						String output = executeActionOnEMS(vnfcInstanceLocal.getHostname(), command,
-								virtualNetworkFunctionRecord, vnfcInstanceLocal);
+								virtualNetworkFunctionRecord, vnfcInstanceLocal, event);
 						res.add(output);
 
 						saveLogToFile(virtualNetworkFunctionRecord, script, vnfcInstanceLocal, output);
@@ -309,7 +312,7 @@ public class SelfnetVNFM extends AbstractVnfmSpringReST {
 		LifecycleEvent le = VnfmUtils.getLifecycleEvent(virtualNetworkFunctionRecord.getLifecycle_event(), event);
 
 		if (le != null) {
-			log.trace("The number of scripts for " + virtualNetworkFunctionRecord.getName() + " are: "
+			log.info("The number of scripts for " + virtualNetworkFunctionRecord.getName() + " are: "
 					+ le.getLifecycle_events());
 			for (String script : le.getLifecycle_events()) {
 				log.info("Sending script: " + script + " to VirtualNetworkFunctionRecord: "
@@ -336,14 +339,14 @@ public class SelfnetVNFM extends AbstractVnfmSpringReST {
 						for (VNFCInstance vnfcInstance1 : vdu.getVnfc_instance()) {
 
 							String output = executeActionOnEMS(vnfcInstance1.getHostname(), command,
-									virtualNetworkFunctionRecord, vnfcInstance);
+									virtualNetworkFunctionRecord, vnfcInstance, event);
 							res.add(output);
 							saveLogToFile(virtualNetworkFunctionRecord, script, vnfcInstance1, output);
 						}
 					}
 				} else {
 					res.add(executeActionOnEMS(vnfcInstance.getHostname(), command, virtualNetworkFunctionRecord,
-							vnfcInstance));
+							vnfcInstance, event));
 				}
 
 				for (String key : tempEnv.keySet()) {
@@ -402,7 +405,7 @@ public class SelfnetVNFM extends AbstractVnfmSpringReST {
 		LifecycleEvent le = VnfmUtils.getLifecycleEvent(virtualNetworkFunctionRecord.getLifecycle_event(), event);
 
 		if (le != null) {
-			log.trace("The number of scripts for " + virtualNetworkFunctionRecord.getName() + " are: "
+			log.info("The number of scripts for " + virtualNetworkFunctionRecord.getName() + " are: "
 					+ le.getLifecycle_events());
 			for (String script : le.getLifecycle_events()) {
 				log.info("Sending script: " + script + " to VirtualNetworkFunctionRecord: "
@@ -427,7 +430,7 @@ public class SelfnetVNFM extends AbstractVnfmSpringReST {
 
 				String command = getJsonObject("EXECUTE", script, env).toString();
 				String output = executeActionOnEMS(vnfcInstance.getHostname(), command, virtualNetworkFunctionRecord,
-						vnfcInstance);
+						vnfcInstance, event);
 				res.add(output);
 				saveLogToFile(virtualNetworkFunctionRecord, script, vnfcInstance, output);
 				for (String key : tempEnv.keySet()) {
@@ -443,7 +446,7 @@ public class SelfnetVNFM extends AbstractVnfmSpringReST {
 		Map<String, String> env = getMap(virtualNetworkFunctionRecord);
 		List<String> res = new ArrayList<>();
 		LifecycleEvent le = VnfmUtils.getLifecycleEvent(virtualNetworkFunctionRecord.getLifecycle_event(), event);
-		log.trace("The number of scripts for " + virtualNetworkFunctionRecord.getName() + " are: "
+		log.info("The number of scripts for " + virtualNetworkFunctionRecord.getName() + " are: "
 				+ le.getLifecycle_events());
 		log.debug("DEPENDENCY IS: " + dependency);
 		if (le != null) {
@@ -498,7 +501,7 @@ public class SelfnetVNFM extends AbstractVnfmSpringReST {
 
 						String command = getJsonObject("EXECUTE", script, env).toString();
 						String output = executeActionOnEMS(vnfcInstance.getHostname(), command,
-								virtualNetworkFunctionRecord, vnfcInstance);
+								virtualNetworkFunctionRecord, vnfcInstance, event);
 						res.add(output);
 
 						saveLogToFile(virtualNetworkFunctionRecord, script, vnfcInstance, output);
@@ -578,7 +581,7 @@ public class SelfnetVNFM extends AbstractVnfmSpringReST {
 		JsonObject jsonMessage = getJsonObjectForScript("SCRIPTS_UPDATE",
 				Base64.encodeBase64String(script.getPayload()), script.getName(), scriptPath);
 		executeActionOnEMS(vnfcInstance.getHostname(), jsonMessage.toString(), virtualNetworkFunctionRecord,
-				vnfcInstance);
+				vnfcInstance, Event.UPDATE);
 	}
 
 	@Override
@@ -588,7 +591,7 @@ public class SelfnetVNFM extends AbstractVnfmSpringReST {
 	@Override
 	public VirtualNetworkFunctionRecord modify(VirtualNetworkFunctionRecord virtualNetworkFunctionRecord,
 			VNFRecordDependency dependency) throws Exception {
-		log.trace("VirtualNetworkFunctionRecord VERSION is: " + virtualNetworkFunctionRecord.getHb_version());
+		log.info("VirtualNetworkFunctionRecord VERSION is: " + virtualNetworkFunctionRecord.getHb_version());
 		log.info("executing modify for VNFR: " + virtualNetworkFunctionRecord.getName());
 
 		log.debug("Got dependency: " + dependency);
@@ -779,19 +782,80 @@ public class SelfnetVNFM extends AbstractVnfmSpringReST {
 				// OLD-VERSION for (String result :
 				// this.executeScriptsForEvent(virtualNetworkFunctionRecord,
 				// Event.CONFIGURE)) {
+				
+				//check if it is delete configuration
+				boolean isDelete = false;
+				for (ConfigurationParameter param : configuration.getConfigurationParameters()) {
+					if (param.getConfKey().equalsIgnoreCase("DELETE")) {
+						isDelete = true;
+					}					
+				}
+				
+				if (isDelete) {
+					for (ConfigurationParameter param : configuration.getConfigurationParameters()) {
+						if (param.getConfKey().equalsIgnoreCase("CID")) {
+							//get original configuration from configurationsMap
+							//check if cid exist
+							if (!configurationsMap.containsKey(param.getValue())) {
+								throw new Exception("VNFM - CID not found: " + param.getValue());
+							}
+							//create new configuration with delte + origianal
+							configuration = mergeConfigurations(configuration, configurationsMap.get(param.getValue()));	
+							break;
+						}					
+					}
+									
+				} else {
+					// update configurationsMap with new configuration
+					for (ConfigurationParameter param : configuration.getConfigurationParameters()) {
+						if (param.getConfKey().equalsIgnoreCase("CID")) {				
+							configurationsMap.put(param.getValue(), configuration);		
+							break;
+						}
+					}
+				}
+							
 				for (String result : this.executeScriptsForEvent(virtualNetworkFunctionRecord, configuration,
 						Event.CONFIGURE)) {
 					output += parser.fromJson(result, JsonObject.class).get("output").getAsString().replaceAll("\\\\n",
 							"\n");
-					output += "\n--------------------\n";
+					output += "\n--------------------\n";		
 				}
 				output += "\n--------------------\n";
 				log.info("Executed script for CONFIGURE. Output was: \n\n" + output);
+			
+				if (isDelete) {
+					//update configurationsMap
+					for (ConfigurationParameter param : configuration.getConfigurationParameters()) {
+						if (param.getConfKey().equalsIgnoreCase("CID")) {
+							configurationsMap.remove(param.getValue());
+							break;
+						}
+					}
+				}
+				
 			}
 		}
 		return virtualNetworkFunctionRecord;
 	}
 
+	private Configuration mergeConfigurations(Configuration first, Configuration second) {
+	
+		Set<ConfigurationParameter> newParams = first.getConfigurationParameters();
+		
+		for (ConfigurationParameter param : second.getConfigurationParameters()) {
+			if (param.getConfKey().equalsIgnoreCase("CID")) {
+				//skip CID
+				continue;
+			}
+			newParams.add(param);
+		}
+		
+		first.setConfigurationParameters(newParams);
+		
+		return first;
+	}
+	
 	@Override
 	public VirtualNetworkFunctionRecord resume(VirtualNetworkFunctionRecord virtualNetworkFunctionRecord,
 			VNFCInstance vnfcInstance, VNFRecordDependency dependency) throws Exception {
@@ -833,8 +897,8 @@ public class SelfnetVNFM extends AbstractVnfmSpringReST {
 	}
 
 	private String executeActionOnEMS(String vduHostname, String command, VirtualNetworkFunctionRecord vnfr,
-			VNFCInstance vnfcInstance) throws Exception {
-		log.trace("Sending message and waiting: " + command + " to " + vduHostname);
+			VNFCInstance vnfcInstance, Event event) throws Exception {
+		log.info("Sending message and waiting: " + command + " to " + vduHostname);
 		log.info("Waiting answer from EMS - " + vduHostname);
 
 		String response = this.vnfmRabbitHelper.sendAndReceive(command,
@@ -857,11 +921,17 @@ public class SelfnetVNFM extends AbstractVnfmSpringReST {
 			}
 		} else {
 			String err = jsonObject.get("err").getAsString();
-			log.error(err);
-			vnfcInstance.setState("error");
+			log.error("Error while executing lifecycle script on " + vduHostname + ": " + err);
+			if (event != Event.CONFIGURE) {
+				vnfcInstance.setState("error");
+			}
 			saveLogToFile(vnfr, parser.fromJson(command, JsonObject.class).get("payload").getAsString(), vnfcInstance,
 					response, true);
-			throw new VnfmSdkException("EMS (" + vduHostname + ") had the following error: " + err);
+			if (event != Event.CONFIGURE) {
+				throw new VnfmSdkException("LCM Agent (" + vduHostname + ") had the following error: " + err);
+			} else {
+				throw new Exception("LCM Agent (" + vduHostname + ") had the following error: " + err);
+			}
 		}
 		return response;
 	}
@@ -873,7 +943,7 @@ public class SelfnetVNFM extends AbstractVnfmSpringReST {
 		LifecycleEvent le = VnfmUtils.getLifecycleEvent(virtualNetworkFunctionRecord.getLifecycle_event(), event);
 
 		if (le != null) {
-			log.trace("The number of scripts for " + virtualNetworkFunctionRecord.getName() + " are: "
+			log.info("The number of scripts for " + virtualNetworkFunctionRecord.getName() + " are: "
 					+ le.getLifecycle_events());
 			for (String script : le.getLifecycle_events()) {
 				log.info("Sending script: " + script + " to VirtualNetworkFunctionRecord: "
@@ -898,7 +968,7 @@ public class SelfnetVNFM extends AbstractVnfmSpringReST {
 
 						String command = getJsonObject("EXECUTE", script, env).toString();
 						String output = executeActionOnEMS(vnfcInstance.getHostname(), command,
-								virtualNetworkFunctionRecord, vnfcInstance);
+								virtualNetworkFunctionRecord, vnfcInstance, event);
 						res.add(output);
 
 						saveLogToFile(virtualNetworkFunctionRecord, script, vnfcInstance, output);
@@ -916,7 +986,7 @@ public class SelfnetVNFM extends AbstractVnfmSpringReST {
 								
 		String command = getJsonObject("GET_STATISTICS", vnfr.getId()).toString();
 		String output = executeActionOnEMS(vnfcInstance.getHostname(), command, vnfr,
-								    vnfcInstance);
+								    vnfcInstance, Event.CONFIGURE);
 		
 		JsonObject jsonObject = this.parser.fromJson(output, JsonObject.class);
 
@@ -945,7 +1015,7 @@ public class SelfnetVNFM extends AbstractVnfmSpringReST {
 		LifecycleEvent le = VnfmUtils.getLifecycleEvent(virtualNetworkFunctionRecord.getLifecycle_event(), event);
 
 		if (le != null) {
-			log.trace("The number of scripts for " + virtualNetworkFunctionRecord.getName() + " are: "
+			log.info("The number of scripts for " + virtualNetworkFunctionRecord.getName() + " are: "
 					+ le.getLifecycle_events());
 			for (String script : le.getLifecycle_events()) {
 				log.info("Sending script: " + script + " to VirtualNetworkFunctionRecord: "
@@ -969,7 +1039,7 @@ public class SelfnetVNFM extends AbstractVnfmSpringReST {
 
 						String command = getJsonObject("EXECUTE", script, env).toString();
 						res.add(executeActionOnEMS(vnfcInstance.getHostname(), command, virtualNetworkFunctionRecord,
-								vnfcInstance));
+								vnfcInstance, event));
 
 						for (String key : tempEnv.keySet()) {
 							env.remove(key);
@@ -1043,7 +1113,7 @@ public class SelfnetVNFM extends AbstractVnfmSpringReST {
 
 								String command = getJsonObject("EXECUTE", script, env).toString();
 								String output = executeActionOnEMS(vnfcInstance.getHostname(), command,
-										virtualNetworkFunctionRecord, vnfcInstance);
+										virtualNetworkFunctionRecord, vnfcInstance, event);
 								res.add(output);
 
 								saveLogToFile(virtualNetworkFunctionRecord, script, vnfcInstance, output);
@@ -1072,7 +1142,7 @@ public class SelfnetVNFM extends AbstractVnfmSpringReST {
 			for (VirtualDeploymentUnit virtualDeploymentUnit : virtualNetworkFunctionRecord.getVdu()) {
 				for (VNFCInstance vnfcInstance : virtualDeploymentUnit.getVnfc_instance()) {
 					executeActionOnEMS(vnfcInstance.getHostname(), jsonMessage.toString(), virtualNetworkFunctionRecord,
-							vnfcInstance);
+							vnfcInstance, Event.INSTANTIATE);
 				}
 			}
 		} else if (scripts instanceof Set) {
@@ -1081,13 +1151,13 @@ public class SelfnetVNFM extends AbstractVnfmSpringReST {
 			for (Script script : scriptSet) {
 				log.debug("Sending script encoded base64 ");
 				String base64String = Base64.encodeBase64String(script.getPayload());
-				log.trace("The base64 string is: " + base64String);
+				log.info("The base64 string is: " + base64String);
 				JsonObject jsonMessage = getJsonObjectForScript("SAVE_SCRIPTS", base64String, script.getName(),
 						this.scriptPath);
 				for (VirtualDeploymentUnit virtualDeploymentUnit : virtualNetworkFunctionRecord.getVdu()) {
 					for (VNFCInstance vnfcInstance : virtualDeploymentUnit.getVnfc_instance()) {
 						executeActionOnEMS(vnfcInstance.getHostname(), jsonMessage.toString(),
-								virtualNetworkFunctionRecord, vnfcInstance);
+								virtualNetworkFunctionRecord, vnfcInstance, Event.INSTANTIATE);
 					}
 				}
 			}
@@ -1104,17 +1174,17 @@ public class SelfnetVNFM extends AbstractVnfmSpringReST {
 			log.debug("Scripts are: " + scriptLink);
 			JsonObject jsonMessage = getJsonObject("CLONE_SCRIPTS", scriptLink, this.scriptPath);
 			executeActionOnEMS(vnfcInstance.getHostname(), jsonMessage.toString(), virtualNetworkFunctionRecord,
-					vnfcInstance);
+					vnfcInstance, Event.INSTANTIATE);
 		} else if (scripts instanceof Set) {
 			Iterable<Script> scriptSet = (Set<Script>) scripts;
 			for (Script script : scriptSet) {
 				log.debug("Sending script encoded base64 ");
 				String base64String = Base64.encodeBase64String(script.getPayload());
-				log.trace("The base64 string is: " + base64String);
+				log.info("The base64 string is: " + base64String);
 				JsonObject jsonMessage = getJsonObjectForScript("SAVE_SCRIPTS", base64String, script.getName(),
 						this.scriptPath);
 				executeActionOnEMS(vnfcInstance.getHostname(), jsonMessage.toString(), virtualNetworkFunctionRecord,
-						vnfcInstance);
+						vnfcInstance, Event.INSTANTIATE);
 			}
 		}
 	}
@@ -1155,11 +1225,15 @@ public class SelfnetVNFM extends AbstractVnfmSpringReST {
 		Map<String, String> res = new HashMap<>();
 		for (ConfigurationParameter configurationParameter : virtualNetworkFunctionRecord.getProvides()
 				.getConfigurationParameters()) {
-			res.put(configurationParameter.getConfKey(), configurationParameter.getValue());
+			if (configurationParameter.getConfKey() != null) {
+				res.put(configurationParameter.getConfKey(), configurationParameter.getValue());
+			}
 		}
 		for (ConfigurationParameter configurationParameter : virtualNetworkFunctionRecord.getConfigurations()
 				.getConfigurationParameters()) {
-			res.put(configurationParameter.getConfKey(), configurationParameter.getValue());
+			if (configurationParameter.getConfKey() != null) {
+				res.put(configurationParameter.getConfKey(), configurationParameter.getValue());
+			}
 		}
 		res = modifyUnsafeEnvVarNames(res);
 		return res;
@@ -1170,14 +1244,20 @@ public class SelfnetVNFM extends AbstractVnfmSpringReST {
 		Map<String, String> res = new HashMap<>();
 		for (ConfigurationParameter configurationParameter : virtualNetworkFunctionRecord.getProvides()
 				.getConfigurationParameters()) {
-			res.put(configurationParameter.getConfKey(), configurationParameter.getValue());
+			if (configurationParameter.getConfKey() != null) {
+				res.put(configurationParameter.getConfKey(), configurationParameter.getValue());
+			}
 		}
 		for (ConfigurationParameter configurationParameter : virtualNetworkFunctionRecord.getConfigurations()
 				.getConfigurationParameters()) {
-			res.put(configurationParameter.getConfKey(), configurationParameter.getValue());
+			if (configurationParameter.getConfKey() != null) {
+				res.put(configurationParameter.getConfKey(), configurationParameter.getValue());
+			}
 		}
 		for (ConfigurationParameter configurationParameter : configuration.getConfigurationParameters()) {
-			res.put(configurationParameter.getConfKey(), configurationParameter.getValue());
+			if (configurationParameter.getConfKey() != null) {
+				res.put(configurationParameter.getConfKey(), configurationParameter.getValue());
+			}
 		}
 		return res;
 	}
@@ -1201,7 +1281,7 @@ public class SelfnetVNFM extends AbstractVnfmSpringReST {
 	protected String getUserData() {
 		String userDataFullPath = userData + "user-data.sh";
 		
-		log.debug("The user-data for cloud-init purposed will be: " + userDataFullPath);
+		log.debug("The user-data for cloud-init purposes will be: " + userDataFullPath);
 		
 		//String result = convertStreamToString(AbstractVnfm.class.getResourceAsStream("./user-data.sh"));
 		String result = null;
